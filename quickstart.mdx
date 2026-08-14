@@ -1,47 +1,61 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with Wizzit in Minutes"
+sidebarTitle: "Quickstart"
+description: "Learn how to set up your Wizzit account, create your first document, and make your first API call in under 10 minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This quickstart walks you through everything you need to get productive with Wizzit fast. By the end, you'll have a verified account, a live API key, your first document created via the REST API, and a clear path to connecting your first integration — all in under ten minutes.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before you begin, make sure you have the following:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- A Wizzit account — sign up for free at [app.wizzit.com](https://app.wizzit.com)
+- An API key generated from your Wizzit dashboard (see Step 2 below)
+- `curl` installed on your machine, or any HTTP client you prefer
 
-## Get started
+## Steps
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Create Your Account">
+    Head to [app.wizzit.com](https://app.wizzit.com) and complete the sign-up form. Wizzit will send you a verification email — click the link inside to activate your account and access your workspace for the first time.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+  <Step title="Generate an API Key">
+    Once you're logged in, navigate to **Settings → API Keys** and click **Create New Key**. Give your key a descriptive name (for example, `quickstart-key`) and copy the value shown — you won't be able to view it again after closing the dialog.
 
-    ```bash
-    your-cli init
-    ```
+    Store your API key somewhere safe, such as an environment variable or a secrets manager. You'll use it in every request to the Wizzit API.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+  <Step title="Create Your First Document">
+    With your API key in hand, create your first document by sending a `POST` request to the Wizzit API:
 
     ```bash
-    your-cli start
+    curl -X POST https://api.wizzit.com/v1/documents \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "title": "My First Document",
+        "content": "Hello, Wizzit!",
+        "visibility": "private"
+      }'
     ```
+
+    A successful response returns a `201 Created` status along with the new document object, including its unique `id`. Copy that `id` — you'll use it in the next step.
+  </Step>
+  <Step title="Retrieve the Document">
+    Confirm your document was created by fetching it directly using its `id`:
+
+    ```bash
+    curl -X GET https://api.wizzit.com/v1/documents/{id} \
+      -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    Replace `{id}` with the document ID returned in the previous step. The response includes the full document object with its title, content, visibility setting, and metadata.
+  </Step>
+  <Step title="Connect an Integration">
+    Now that your first document is live, you're ready to connect Wizzit to the tools your team uses every day. Head over to the [Integrations](/integrations/overview) section to browse the available connectors and follow the setup guide for your chosen system.
   </Step>
 </Steps>
 
 <Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+  Looking for a more powerful programmatic experience? The [Wizzit SDK](/sdk/overview) wraps the REST API in idiomatic client libraries, handles authentication for you, and includes helpers for batch operations, webhooks, and more.
 </Tip>

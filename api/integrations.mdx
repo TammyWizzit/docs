@@ -1,0 +1,255 @@
+---
+title: "REST API Endpoints for Integrations"
+sidebarTitle: "Integrations API"
+description: "Reference for Wizzit integration endpoints: list, create, update, and delete integrations connecting your external systems to Wizzit."
+---
+
+Integrations let you connect external tools and services to your Wizzit workspace — pulling in content, syncing documents, or triggering automation based on events in your other platforms. You can configure integrations via the Wizzit dashboard or manage them entirely through the API. Each integration has a type, a target URL, and authentication details for Wizzit to communicate with your system.
+
+---
+
+## GET /integrations
+
+Retrieve a list of all integrations configured in your workspace.
+
+### Query Parameters
+
+<ParamField query="page" type="integer" default="1">
+  The page number to retrieve.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of results per page. Maximum is `100`.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/integrations \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "int_01hx7p4kn5",
+      "name": "Notion Sync",
+      "type": "notion",
+      "target_url": "https://hooks.example.com/notion",
+      "auth_type": "bearer",
+      "status": "active",
+      "sync_on": ["document.created", "document.updated"],
+      "created_at": "2024-04-10T10:00:00Z",
+      "updated_at": "2024-04-10T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 1
+  }
+}
+```
+
+---
+
+## POST /integrations
+
+Create a new custom integration for your workspace.
+
+### Request Body
+
+<ParamField body="name" type="string" required>
+  A human-readable name for the integration (e.g., `"Salesforce CRM Sync"`).
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  The integration type. Examples: `notion`, `slack`, `salesforce`, `custom`.
+</ParamField>
+
+<ParamField body="target_url" type="string" required>
+  The HTTPS endpoint Wizzit will send payloads to when syncing or triggering events.
+</ParamField>
+
+<ParamField body="auth_type" type="string" required>
+  The authentication method used when calling the `target_url`. Accepted values: `bearer`, `basic`, `api_key`, `none`.
+</ParamField>
+
+<ParamField body="auth_token" type="string">
+  The credential used with the selected `auth_type`. Required when `auth_type` is `bearer`, `basic`, or `api_key`. This value is stored encrypted and never returned in plain text after creation.
+</ParamField>
+
+<ParamField body="sync_on" type="array">
+  An array of event names that trigger a sync to the `target_url`. Accepted values: `document.created`, `document.updated`, `document.deleted`, `document.shared`, `user.invited`.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/integrations \
+  -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Salesforce CRM Sync",
+    "type": "salesforce",
+    "target_url": "https://hooks.example.com/salesforce/wizzit",
+    "auth_type": "bearer",
+    "auth_token": "sf_token_abc123",
+    "sync_on": ["document.created", "document.shared"]
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "int_01hx8q5ln9",
+    "name": "Salesforce CRM Sync",
+    "type": "salesforce",
+    "target_url": "https://hooks.example.com/salesforce/wizzit",
+    "auth_type": "bearer",
+    "status": "active",
+    "sync_on": ["document.created", "document.shared"],
+    "created_at": "2024-05-22T09:00:00Z",
+    "updated_at": "2024-05-22T09:00:00Z"
+  }
+}
+```
+
+Returns `201 Created` on success. Note that `auth_token` is never included in the response.
+
+---
+
+## GET /integrations/{id}
+
+Retrieve the configuration details of a specific integration.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the integration (e.g., `int_01hx8q5ln9`).
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/integrations/int_01hx8q5ln9 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "int_01hx8q5ln9",
+    "name": "Salesforce CRM Sync",
+    "type": "salesforce",
+    "target_url": "https://hooks.example.com/salesforce/wizzit",
+    "auth_type": "bearer",
+    "status": "active",
+    "sync_on": ["document.created", "document.shared"],
+    "created_at": "2024-05-22T09:00:00Z",
+    "updated_at": "2024-05-22T09:00:00Z"
+  }
+}
+```
+
+---
+
+## PATCH /integrations/{id}
+
+Partially update an integration. Only the fields you provide are modified. You can use this endpoint to pause an integration by setting its `status` to `disabled`, or to update the target URL and event triggers.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the integration to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="name" type="string">
+  Updated name for the integration.
+</ParamField>
+
+<ParamField body="target_url" type="string">
+  Updated target endpoint URL.
+</ParamField>
+
+<ParamField body="auth_type" type="string">
+  Updated authentication method: `bearer`, `basic`, `api_key`, or `none`.
+</ParamField>
+
+<ParamField body="auth_token" type="string">
+  Updated authentication credential. Stored encrypted; not returned in responses.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Set to `active` or `disabled` to enable or pause the integration.
+</ParamField>
+
+<ParamField body="sync_on" type="array">
+  Updated list of events that trigger a sync. Replaces the existing list.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/integrations/int_01hx8q5ln9 \
+  -X PATCH \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "status": "disabled" }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "int_01hx8q5ln9",
+    "name": "Salesforce CRM Sync",
+    "type": "salesforce",
+    "target_url": "https://hooks.example.com/salesforce/wizzit",
+    "auth_type": "bearer",
+    "status": "disabled",
+    "sync_on": ["document.created", "document.shared"],
+    "created_at": "2024-05-22T09:00:00Z",
+    "updated_at": "2024-05-23T14:30:00Z"
+  }
+}
+```
+
+---
+
+## DELETE /integrations/{id}
+
+Permanently remove an integration from your workspace. Wizzit will immediately stop sending events to the integration's target URL.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the integration to remove.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/integrations/int_01hx8q5ln9 \
+  -X DELETE \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+Returns `204 No Content` with an empty body on success.

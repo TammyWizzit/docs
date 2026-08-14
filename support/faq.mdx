@@ -1,0 +1,132 @@
+---
+title: "Frequently Asked Questions About Wizzit"
+sidebarTitle: "FAQ"
+description: "Find answers to the most common questions about Wizzit accounts, documents, integrations, the SDK, billing, and workspace management."
+---
+
+This FAQ covers the questions our users ask most often. Whether you are just getting started, managing documents for your team, connecting third-party tools, or exploring the SDK, you will find quick answers here. If you cannot find what you are looking for, reach out to the support team at support@wizzit.com.
+
+## Account & Getting Started
+
+<Accordion title="How do I create a Wizzit account?">
+  Visit [app.wizzit.com](https://app.wizzit.com) and click **Sign Up**. Enter your email address and choose a password, then verify your email using the link we send you. Your workspace is created automatically as soon as your email is confirmed — no extra setup required.
+</Accordion>
+
+<Accordion title="Can I invite team members to my workspace?">
+  Yes. Go to **Settings → Members → Invite**, enter the email addresses of the people you want to add, and assign each one a role:
+
+  - **Admin** — full access to workspace settings, billing, and members
+  - **Editor** — can create, edit, and publish documents
+  - **Viewer** — read-only access to documents shared with them
+
+  Invitees receive an email with a link to join your workspace.
+</Accordion>
+
+<Accordion title="Is there a free trial?">
+  Yes. Wizzit offers a **14-day free trial** on all paid plans. You do not need to provide a credit card to start your trial. At the end of the trial period you can choose a plan or continue on the free Starter tier.
+</Accordion>
+
+<Accordion title="How many workspaces can I have?">
+  The number of workspaces depends on your plan:
+
+  - **Starter** — one workspace per account
+  - **Pro** — multiple workspaces supported
+  - **Enterprise** — unlimited workspaces with centralised billing and administration
+
+  You can upgrade your plan at any time from **Settings → Billing**.
+</Accordion>
+
+## Documents
+
+<Accordion title="What is the difference between Internal and Client-Facing documents?">
+  - **Internal documents** are only visible to members of your workspace. Use these for team runbooks, internal policies, and private knowledge bases.
+  - **Client-Facing documents** can be shared with external clients via a shareable link or through the API. Access controls let you restrict who can view each document.
+
+  You can switch a document between these two types at any time from the document's **Settings** panel.
+</Accordion>
+
+<Accordion title="Can I import documents from other tools?">
+  Yes. Wizzit supports importing documents from the following sources:
+
+  - **Google Docs** — connect your Google account and select files to import
+  - **Notion** — export pages from Notion and upload them directly
+  - **Markdown files** — upload `.md` or `.mdx` files from your computer
+
+  Start an import from **Settings → Import** and follow the on-screen steps.
+</Accordion>
+
+<Accordion title="Is there a document size limit?">
+  Individual document content can be up to **10 MB**. File attachments added to a document (images, PDFs, etc.) can each be up to **50 MB**. If you regularly work with very large files, contact the support team to discuss your requirements.
+</Accordion>
+
+<Accordion title="Can I version my documents?">
+  Yes. Every time you publish a change to a document, Wizzit automatically creates a new version. You can review, compare, and restore any previous version by opening the document and clicking the **History** tab. Versions are retained for the lifetime of your workspace.
+</Accordion>
+
+## Integrations & API
+
+<Accordion title="Where do I find my API key?">
+  Go to **Settings → API Keys** and click **Create Key**. Give the key a descriptive name and select the scopes it needs, then click **Generate**.
+
+  <Warning>
+    Copy your API key immediately after creation — it is only shown once. If you lose it, you will need to revoke the old key and create a new one.
+  </Warning>
+
+  Store your key in a secrets manager or environment variable and never commit it to source control.
+</Accordion>
+
+<Accordion title="What happens if I delete an integration?">
+  Deleting an integration immediately stops all future syncs between Wizzit and the connected service. Documents that were already synced before deletion are not affected — they remain in your workspace exactly as they were. If you want to resume syncing later, you will need to reconnect the integration from scratch.
+</Accordion>
+
+<Accordion title="How many API calls can I make per minute?">
+  The default rate limit is **100 requests per minute per API key**. If you exceed this limit, the API returns a `429 Too Many Requests` response. Implement exponential backoff in your client to handle this gracefully.
+
+  <Tip>
+    Enterprise plans can request higher rate limits. Contact your account manager or email support@wizzit.com with your use case.
+  </Tip>
+</Accordion>
+
+<Accordion title="Does Wizzit support webhooks?">
+  Yes. You can register webhook endpoints in **Settings → Webhooks** or programmatically via the API. Wizzit sends a signed `POST` request to your endpoint whenever a subscribed event occurs (for example, a document being published or an integration syncing).
+
+  See the [Webhooks documentation](/integrations/webhooks) for full details on event types, payload structure, and signature verification.
+</Accordion>
+
+## SDK
+
+<Accordion title="Which programming languages does the SDK support?">
+  The following SDKs are currently available:
+
+  - **JavaScript / TypeScript** — install from npm as `@wizzit/sdk`
+  - **Python** — install from PyPI as `wizzit`
+
+  SDKs for **Ruby** and **Go** are in development and coming soon. If you need support for another language in the meantime, you can use the REST API directly.
+</Accordion>
+
+<Accordion title="Is the SDK open source?">
+  Yes. The Wizzit SDK is published under the **MIT licence** and the source code is publicly available.
+
+  - **npm**: [`@wizzit/sdk`](https://www.npmjs.com/package/@wizzit/sdk)
+  - **PyPI**: [`wizzit`](https://pypi.org/project/wizzit/)
+
+  Contributions, bug reports, and feature requests are welcome via the GitHub repository.
+</Accordion>
+
+## Billing & Plans
+
+<Accordion title="What plans does Wizzit offer?">
+  Wizzit has three plans to suit teams of every size:
+
+  | Plan | Best for |
+  |---|---|
+  | **Starter** | Individuals and small teams getting started — free tier with core features |
+  | **Pro** | Growing teams that need multiple workspaces and higher limits |
+  | **Enterprise** | Large organisations requiring custom limits, SSO, and dedicated support |
+
+  Visit the [pricing page](https://wizzit.com/pricing) for a full feature comparison and current pricing.
+</Accordion>
+
+<Accordion title="Can I change my plan at any time?">
+  Yes. You can upgrade or downgrade your plan at any time from **Settings → Billing**. Upgrades take effect immediately and you are billed a prorated amount for the remainder of the billing period. Downgrades take effect at the start of your next billing cycle.
+</Accordion>

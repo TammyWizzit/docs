@@ -1,0 +1,103 @@
+---
+title: "OAuth 2.0 Integration with Wizzit"
+sidebarTitle: "OAuth 2.0"
+description: "Use OAuth 2.0 to let third-party apps access Wizzit on behalf of your users. Implement the authorization code flow to obtain scoped access tokens."
+---
+
+Wizzit supports OAuth 2.0 so external applications can securely request access to a user's workspace without handling passwords. By implementing the authorisation code flow, your app obtains a scoped access token that represents a specific user's consent — keeping credentials safe and giving users full visibility and control over which apps can access their data.
+
+## OAuth 2.0 Flow Overview
+
+<Steps>
+  <Step title="Register your app">
+    Go to **Settings → Developer Apps → New App** in your Wizzit dashboard. Provide a name for your application, set the redirect URI that Wizzit will return users to after authorisation, and select the scopes your app requires.
+  </Step>
+  <Step title="Redirect the user">
+    Send the user to Wizzit's authorisation URL. Include your `client_id`, `redirect_uri`, requested `scope` values, and `response_type=code`:
+
+    ```bash
+    https://auth.wizzit.com/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=documents:read integrations:write&response_type=code
+    ```
+  </Step>
+  <Step title="Handle the callback">
+    After the user approves access, Wizzit redirects them to your `redirect_uri` with a short-lived `code` parameter appended to the URL. Extract this code — you'll exchange it for tokens in the next step.
+  </Step>
+  <Step title="Exchange the code for tokens">
+    Send a `POST` request to Wizzit's token endpoint with the authorisation code. See the [Token Exchange](#token-exchange) section below for the full request and response format.
+  </Step>
+  <Step title="Use the access token">
+    Include the access token in the `Authorization` header of every Wizzit API call:
+
+    ```bash
+    Authorization: Bearer ACCESS_TOKEN
+    ```
+
+    When the token expires, use your `refresh_token` to obtain a new one without requiring the user to re-authorise.
+  </Step>
+</Steps>
+
+## Available Scopes
+
+Request only the scopes your application genuinely needs. Users see a list of requested permissions during the authorisation step.
+
+| Scope | Description |
+|---|---|
+| `documents:read` | Read document content and metadata |
+| `documents:write` | Create, update, and delete documents |
+| `integrations:read` | View configured integrations |
+| `integrations:write` | Create, update, and delete integrations |
+| `users:read` | Read basic profile information for workspace members |
+| `webhooks:write` | Register and manage webhook endpoints |
+
+## Token Exchange
+
+Exchange the authorisation code for an access token and refresh token by sending a `POST` request to the token endpoint:
+
+```bash
+POST https://auth.wizzit.com/oauth/token
+```
+
+```json
+{
+  "grant_type": "authorization_code",
+  "code": "AUTHORIZATION_CODE",
+  "client_id": "YOUR_CLIENT_ID",
+  "client_secret": "YOUR_CLIENT_SECRET",
+  "redirect_uri": "YOUR_REDIRECT_URI"
+}
+```
+
+A successful response returns both tokens along with expiry information:
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "refresh_token": "rt_4f5g6h7i8j9k...",
+  "scope": "documents:read integrations:write"
+}
+```
+
+## Refreshing Tokens
+
+Access tokens expire after the number of seconds specified in `expires_in`. Use your `refresh_token` to obtain a new access token without sending the user through the authorisation flow again:
+
+```bash
+POST https://auth.wizzit.com/oauth/token
+```
+
+```json
+{
+  "grant_type": "refresh_token",
+  "refresh_token": "rt_4f5g6h7i8j9k...",
+  "client_id": "YOUR_CLIENT_ID",
+  "client_secret": "YOUR_CLIENT_SECRET"
+}
+```
+
+The response follows the same structure as the initial token exchange and includes a new `refresh_token`. Discard the old refresh token and store the new one securely.
+
+<Warning>
+  Store access tokens and refresh tokens in a secure, server-side location — never in browser local storage, cookies accessible to JavaScript, or client-side code. Your `client_secret` must remain confidential at all times; if it is ever exposed, rotate it immediately in **Settings → Developer Apps**. Compromised credentials can grant unauthorised access to your users' Wizzit workspaces.
+</Warning>

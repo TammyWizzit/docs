@@ -1,0 +1,78 @@
+---
+title: "Sharing Documents and Managing Permissions"
+sidebarTitle: "Sharing & Permissions"
+description: "Control who can view, edit, and share Wizzit documents using roles, visibility settings, and shareable links for client access."
+---
+
+Wizzit's granular permissions model lets you keep sensitive internal documents locked down while still giving clients frictionless access to exactly what they need. You control access at two levels: workspace roles determine what your team members can do, and document-level visibility settings determine who outside your organisation can reach a given document. Together, these tools ensure the right people always see the right content.
+
+## Workspace Roles
+
+Every member of your Wizzit workspace is assigned a role that determines their default capabilities across the workspace. You can adjust individual members' roles at any time from the **Team** section in workspace settings.
+
+| Role | Access Level |
+|---|---|
+| **Admin** | Full access across the workspace — create, edit, publish, archive, delete documents, manage team members, and configure workspace settings. |
+| **Editor** | Can create, edit, and publish documents. Cannot delete documents or manage team members. |
+| **Viewer** | Read-only access to all `internal` and `public` documents within the workspace. Cannot create or edit content. |
+
+## Document Visibility
+
+Visibility is set at the document level and determines the broadest possible audience for that document, regardless of role.
+
+- **`private`** — Only you can access this document. It is invisible to all other workspace members, including Admins, until you change the visibility or explicitly share it.
+- **`internal`** — All workspace members can view this document. Viewers, Editors, and Admins all have read access. The document is not accessible outside the workspace.
+- **`public`** — Anyone with the link can access this document. No authentication is required, making this appropriate for fully open content such as public help articles or published reports.
+
+## Sharing with Clients
+
+Client-facing documents can be shared via a generated link that requires no Wizzit account to access. To share a document with a client from the dashboard:
+
+1. Open the document you want to share.
+2. Click the **Share** button in the top-right toolbar.
+3. Toggle on **Client Access** to generate a secure, unique link.
+4. Copy the link and send it to your client directly.
+
+You can configure link expiry settings — including a default expiry duration for all new shared links — in **Workspace Settings → Sharing**.
+
+<Warning>
+  Always set an appropriate expiry date on shared links for sensitive documents such as contracts, financial reports, or personally identifiable information. Links without an expiry remain active indefinitely. If a link is compromised, you can revoke it immediately from the **Share** panel on the document.
+</Warning>
+
+## API-Driven Permissions
+
+For more precise access control — such as granting a specific client read-only access to a document with a hard expiry date — use the sharing endpoint. This is especially useful when automating client onboarding or building integrations.
+
+```bash
+POST https://api.wizzit.com/v1/documents/{id}/share
+```
+
+**Request body**
+
+```json
+{
+  "email": "client@example.com",
+  "role": "viewer",
+  "expires_at": "2025-12-31T23:59:59Z"
+}
+```
+
+**Success response** — `201 Created`
+
+```json
+{
+  "share_id": "shr_03k1mf7y2pxn8wca4dqe9rzb5v",
+  "document_id": "doc_01j8tz4x9kqm2vbn3cpw7yhf6e",
+  "email": "client@example.com",
+  "role": "viewer",
+  "expires_at": "2025-12-31T23:59:59Z",
+  "url": "https://share.wizzit.com/docs/doc_01j8tz4x9kqm2vbn3cpw7yhf6e?token=shr_03k1mf7y2pxn8wca4dqe9rzb5v",
+  "created_at": "2024-10-14T11:05:22Z"
+}
+```
+
+The `url` in the response is a unique, token-scoped link tied to the recipient's email and the expiry you set. You can list, update, and revoke individual shares at any time via the API.
+
+<Note>
+  To manage workspace team members — including inviting new members, changing roles, or removing access — see the [Users API reference](/api/users).
+</Note>

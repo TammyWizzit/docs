@@ -1,0 +1,82 @@
+---
+title: "Core Concepts: How Wizzit Organises Your Work"
+sidebarTitle: "Core Concepts"
+description: "Understand Wizzit's key building blocks — workspaces, documents, integrations, and permissions — and how they work together."
+---
+
+Understanding how Wizzit is structured helps you get the most out of the platform — whether you're setting up a new workspace, designing a document hierarchy, or wiring up integrations. This page introduces the six core building blocks of Wizzit and explains how they relate to one another.
+
+<CardGroup cols={2}>
+  <Card title="Workspaces" icon="building">
+    Your organisation's root container — everything in Wizzit lives inside a workspace.
+  </Card>
+  <Card title="Documents" icon="file-lines">
+    The core unit of Wizzit — internal or client-facing, with rich metadata and visibility controls.
+  </Card>
+  <Card title="Integrations" icon="plug">
+    Connections between Wizzit and your external tools, managed via the dashboard or API.
+  </Card>
+  <Card title="Permissions & Roles" icon="lock">
+    Granular access control with Admin, Editor, and Viewer roles at workspace and document level.
+  </Card>
+  <Card title="API Keys" icon="key">
+    Bearer tokens that authenticate your requests to the Wizzit REST API and SDK.
+  </Card>
+  <Card title="Webhooks" icon="bell">
+    Real-time event notifications delivered to your systems when documents or integrations change.
+  </Card>
+</CardGroup>
+
+---
+
+## Workspaces
+
+A workspace is your organisation's root container inside Wizzit. Every document, team member, integration, and API key belongs to exactly one workspace. When you first sign up, Wizzit creates a default workspace for you automatically — you can rename it, invite colleagues, and configure settings at any time from the dashboard.
+
+Most organisations operate with a single workspace, but Wizzit supports multiple workspaces if you need to maintain strict separation between departments, clients, or environments (for example, production versus staging).
+
+## Documents
+
+Documents are the core unit of Wizzit. Each document holds structured content along with a set of metadata that controls how it's stored, displayed, and shared:
+
+| Field | Description |
+|---|---|
+| `title` | A human-readable name for the document |
+| `content` | The body of the document, supporting rich text or Markdown |
+| `type` | The document category — for example, `policy`, `report`, or `guide` |
+| `visibility` | Either `private` (internal only) or `shared` (accessible to external clients) |
+| `tags` | A list of labels used to group and filter documents across your workspace |
+
+Documents can be created and managed through the Wizzit dashboard or programmatically via the REST API and SDK. Client-facing documents can be shared with external stakeholders through secure, tokenised links without requiring them to have a Wizzit account.
+
+## Integrations
+
+Integrations connect Wizzit to the external systems your team already relies on — CRMs, ERPs, data warehouses, custom internal tools, and more. Once an integration is active, you can push documents, trigger workflows, or sync data between Wizzit and the connected platform automatically.
+
+You can set up and manage integrations from the **Integrations** section of your dashboard, or configure them programmatically through the API. Each integration exposes a set of configurable options and supports granular scoping so you can control exactly which documents or events it has access to.
+
+## Permissions & Roles
+
+Wizzit uses a role-based access control model to ensure the right people have the right level of access. Three roles are available:
+
+- **Admin** — Full control over the workspace, including members, billing, integrations, and all documents.
+- **Editor** — Can create, update, and delete documents, and manage integrations, but cannot change workspace settings or manage members.
+- **Viewer** — Read-only access to documents they have been explicitly granted access to.
+
+Permissions can be applied at the workspace level or scoped to individual documents and teams, giving you fine-grained control over sensitive content without disrupting day-to-day collaboration.
+
+## API Keys
+
+API keys are the bearer tokens you use to authenticate requests to the Wizzit REST API and SDK. You can generate and revoke keys at any time from **Settings → API Keys** in your dashboard.
+
+Each key can be given a descriptive name and an optional expiry date. Treat your API keys as secrets — never commit them to source control or expose them in client-side code. For production workloads, store keys in an environment variable or a dedicated secrets manager.
+
+## Webhooks
+
+Webhooks let Wizzit push real-time notifications to your systems the moment something happens — a document is created or updated, an integration fires, or a permission changes. Instead of polling the API, your application simply listens for incoming HTTP `POST` requests at a URL you configure.
+
+You can register webhook endpoints from the dashboard or via the API, filter by specific event types, and inspect delivery logs to debug failed attempts. Wizzit signs every webhook payload with a secret so you can verify that requests genuinely originate from Wizzit.
+
+<Note>
+  Each concept covered here has its own dedicated documentation page with deeper detail, code examples, and configuration options. Explore the sidebar to find pages for [Documents](/documents/overview), [Integrations](/integrations/overview), [Sharing & Permissions](/documents/sharing-and-permissions), [API Keys](/api/authentication), and [Webhooks](/integrations/webhooks).
+</Note>

@@ -1,0 +1,94 @@
+---
+title: "API Authentication: API Keys and Bearer Tokens"
+sidebarTitle: "Authentication"
+description: "Authenticate Wizzit API requests using API keys passed as Bearer tokens in the Authorization header. Learn to create, rotate, and scope your keys."
+---
+
+Every request you make to the Wizzit API must include a valid API key. Keys are passed as Bearer tokens in the `Authorization` header and are tied to your workspace. You can create multiple keys with different scopes — for example, a read-only key for reporting tools and a write-enabled key for your document automation pipeline.
+
+## Creating an API Key
+
+<Steps>
+  <Step title="Sign in to your workspace">
+    Go to [app.wizzit.com](https://app.wizzit.com) and sign in with your account credentials.
+  </Step>
+  <Step title="Open API Keys settings">
+    Navigate to **Settings → API Keys** from the left-hand navigation panel.
+  </Step>
+  <Step title="Create a new key">
+    Click the **Create New Key** button in the top right corner of the API Keys page.
+  </Step>
+  <Step title="Name your key">
+    Give the key a descriptive name that reflects where or how it will be used — for example, `Production Automation` or `Reporting Service`.
+  </Step>
+  <Step title="Restrict scopes (optional)">
+    Select the specific permission scopes this key should have. Limiting scopes reduces risk if a key is ever compromised. See [API Key Scopes](#api-key-scopes) below for the full list.
+  </Step>
+  <Step title="Copy and store your key">
+    Click **Generate Key**. Copy the key immediately and store it somewhere safe, such as a secrets manager or environment variable store.
+  </Step>
+</Steps>
+
+<Warning>
+  Your API key is only displayed once at the time of creation. If you navigate away or close the dialog without copying it, you will need to delete the key and create a new one. Wizzit never stores the plaintext value of your key.
+</Warning>
+
+## Using Your Key
+
+Include your API key in the `Authorization` header of every request using the `Bearer` scheme:
+
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+Here is a complete example using `curl`:
+
+```bash
+curl https://api.wizzit.com/v1/documents \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+Replace `YOUR_API_KEY` with the actual key value. Never commit API keys directly into source code — use environment variables or a secrets manager instead.
+
+## API Key Scopes
+
+Scopes define what actions a key is permitted to perform. When you create a key without selecting any scopes, it inherits all permissions available to your account role. You can restrict a key to a subset of scopes by selecting them during key creation.
+
+| Scope                | Grants Access To                                            |
+|----------------------|-------------------------------------------------------------|
+| `documents:read`     | Read and list all documents in your workspace.              |
+| `documents:write`    | Create, update, delete, and share documents.                |
+| `integrations:read`  | List and retrieve integration configurations.               |
+| `integrations:write` | Create, update, and delete integrations.                    |
+| `users:read`         | List workspace members and view user profiles.              |
+| `webhooks:write`     | Register, update, and delete webhook endpoints.             |
+
+If a request is made using a key that lacks the required scope, the API returns a `403 Forbidden` response with the error code `insufficient_scope`.
+
+## Key Rotation
+
+You should rotate your API keys periodically, or immediately if you suspect a key has been exposed. Rotation is a zero-downtime process when done in the following order:
+
+<Steps>
+  <Step title="Create a new key">
+    Follow the steps in [Creating an API Key](#creating-an-api-key) to generate a replacement key with the same (or updated) scopes.
+  </Step>
+  <Step title="Update your application">
+    Deploy the new key to all services and environments that use the old key. Confirm that all requests are succeeding with the new key before proceeding.
+  </Step>
+  <Step title="Delete the old key">
+    Go to **Settings → API Keys**, find the old key, and click **Delete**. The key is immediately revoked and any requests using it will return a `401 Unauthorized` error.
+  </Step>
+</Steps>
+
+## Authentication Errors
+
+If your key is missing, invalid, or lacks the required scope, the API responds with one of the following errors:
+
+| HTTP Status | Error Code          | Cause                                                            |
+|-------------|---------------------|------------------------------------------------------------------|
+| `401`       | `invalid_api_key`   | The key is missing, malformed, or has been deleted or revoked.   |
+| `403`       | `insufficient_scope`| The key is valid but does not have permission for this action.   |
+
+See the [Errors](/api/errors) reference for the full error response format.

@@ -1,0 +1,37 @@
+---
+title: "Wizzit Integrations: Connect Your Business Systems"
+sidebarTitle: "Overview"
+description: "Wizzit integrations let you sync documents and data between Wizzit and your CRM, ERP, or any custom system using the REST API or pre-built connectors."
+---
+
+Wizzit connects to the tools your team already uses. Integrations allow two-way data flow between Wizzit and external systems — keeping your documents, contacts, and workflows in sync without manual effort. Whether you prefer a point-and-click setup or a fully custom-coded connection, Wizzit gives you the flexibility to integrate on your terms.
+
+## Integration Types
+
+- **Pre-built Connectors**: Point-and-click setup for popular platforms including Salesforce, HubSpot, Slack, and Microsoft Teams. Enable these directly from your dashboard under **Settings → Integrations** — no code required.
+- **Custom API Integrations**: Build your own connection using the Wizzit REST API. You get full control over data mapping, sync frequency, and business logic, making this ideal for proprietary or niche systems.
+- **Webhook-Driven**: React to Wizzit events — such as a document being created, updated, or shared — in your own systems by registering webhook endpoints that Wizzit will call in real time.
+
+## When to Use Each Type
+
+| Integration Type | Best For | Setup |
+|---|---|---|
+| Pre-built Connectors | Popular SaaS platforms with standard data models | Dashboard (no code) |
+| Custom API Integrations | Proprietary systems or advanced data mapping needs | REST API |
+| Webhook-Driven | Event-triggered workflows and real-time reactions | REST API or Dashboard |
+
+<CardGroup cols={2}>
+  <Card title="Connecting Systems" icon="plug" href="/integrations/connecting-systems">
+    Set up pre-built connectors or build a custom API integration to sync data between Wizzit and your business tools.
+  </Card>
+  <Card title="Webhooks" icon="bolt" href="/integrations/webhooks">
+    Register webhook endpoints to receive real-time notifications when documents and integrations change in your workspace.
+  </Card>
+  <Card title="OAuth 2.0" icon="lock" href="/integrations/oauth">
+    Let third-party apps securely access Wizzit on behalf of your users using the OAuth 2.0 authorisation code flow.
+  </Card>
+</CardGroup>
+
+<Tip>
+  If you're connecting a popular platform like Salesforce, HubSpot, or Google Drive, start with a pre-built connector before building a custom integration. Pre-built connectors handle authentication and field mapping out of the box, saving you significant setup time.
+</Tip>

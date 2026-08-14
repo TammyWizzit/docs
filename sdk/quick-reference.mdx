@@ -1,0 +1,339 @@
+---
+title: "Wizzit SDK Quick Reference Guide"
+sidebarTitle: "Quick Reference"
+description: "A complete reference of all Wizzit SDK methods for documents, integrations, webhooks, and users, with TypeScript and Python examples."
+---
+
+This page covers every major method on the `WizzitClient`, with brief examples for both TypeScript and Python. Use it as a day-to-day reference while building your integration. For a deeper look at authentication and setup, see the [Installation](sdk/installation) and [Authentication](sdk/authentication) guides.
+
+## Documents
+
+### `documents.list(options?)`
+
+Returns a paginated list of documents in your workspace. You can filter by type, tag, visibility, and control pagination with `limit` and `page`.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const docs = await wizzit.documents.list({
+      type: 'client-facing',
+      tag: 'quarterly',
+      limit: 20,
+    });
+
+    docs.data.forEach(doc => {
+      console.log(doc.id, doc.title);
+    });
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    docs = wizzit.documents.list(
+        type="client-facing",
+        tag="quarterly",
+        limit=20
+    )
+
+    for doc in docs.data:
+        print(doc.id, doc.title)
+    ```
+  </Tab>
+</Tabs>
+
+### `documents.get(id)`
+
+Fetches a single document by its unique ID. Returns the full document object including metadata, content, and permissions.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const doc = await wizzit.documents.get('doc_abc123');
+
+    console.log(doc.title, doc.updatedAt);
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    doc = wizzit.documents.get("doc_abc123")
+
+    print(doc.title, doc.updated_at)
+    ```
+  </Tab>
+</Tabs>
+
+### `documents.create(data)`
+
+Creates a new document in your workspace. Supply a title, content body, and any tags or visibility settings you want applied from the start.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const doc = await wizzit.documents.create({
+      title: 'Q3 Client Report',
+      body: '# Q3 Summary\n\nRevenue grew 12% quarter-over-quarter...',
+      type: 'client-facing',
+      tags: ['quarterly', 'finance'],
+      visibility: 'shared',
+    });
+
+    console.log('Created:', doc.id);
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    doc = wizzit.documents.create(
+        title="Q3 Client Report",
+        body="# Q3 Summary\n\nRevenue grew 12% quarter-over-quarter...",
+        type="client-facing",
+        tags=["quarterly", "finance"],
+        visibility="shared"
+    )
+
+    print("Created:", doc.id)
+    ```
+  </Tab>
+</Tabs>
+
+### `documents.update(id, data)`
+
+Updates one or more fields on an existing document. Only the fields you provide are changed — all other fields remain unchanged.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const updated = await wizzit.documents.update('doc_abc123', {
+      title: 'Q3 Client Report (Final)',
+      visibility: 'public',
+    });
+
+    console.log('Updated at:', updated.updatedAt);
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    updated = wizzit.documents.update(
+        "doc_abc123",
+        title="Q3 Client Report (Final)",
+        visibility="public"
+    )
+
+    print("Updated at:", updated.updated_at)
+    ```
+  </Tab>
+</Tabs>
+
+### `documents.delete(id)`
+
+Permanently deletes a document. This action cannot be undone.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    await wizzit.documents.delete('doc_abc123');
+
+    console.log('Document deleted.');
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    wizzit.documents.delete("doc_abc123")
+
+    print("Document deleted.")
+    ```
+  </Tab>
+</Tabs>
+
+## Integrations
+
+### `integrations.list()`
+
+Returns all integrations currently connected to your workspace.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const integrations = await wizzit.integrations.list();
+
+    integrations.data.forEach(integration => {
+      console.log(integration.name, integration.status);
+    });
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    integrations = wizzit.integrations.list()
+
+    for integration in integrations.data:
+        print(integration.name, integration.status)
+    ```
+  </Tab>
+</Tabs>
+
+### `integrations.connect(config)`
+
+Connects a new integration to your workspace. Provide the integration type and any required credentials or configuration for that provider.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const integration = await wizzit.integrations.connect({
+      type: 'slack',
+      webhookUrl: 'https://hooks.slack.com/services/...',
+      channelId: 'C04XYZABC',
+    });
+
+    console.log('Connected:', integration.id);
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    integration = wizzit.integrations.connect(
+        type="slack",
+        webhook_url="https://hooks.slack.com/services/...",
+        channel_id="C04XYZABC"
+    )
+
+    print("Connected:", integration.id)
+    ```
+  </Tab>
+</Tabs>
+
+### `integrations.disconnect(id)`
+
+Disables and removes an integration from your workspace by its ID.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    await wizzit.integrations.disconnect('int_xyz789');
+
+    console.log('Integration disconnected.');
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    wizzit.integrations.disconnect("int_xyz789")
+
+    print("Integration disconnected.")
+    ```
+  </Tab>
+</Tabs>
+
+## Webhooks
+
+### `webhooks.create(config)`
+
+Registers a new webhook endpoint to receive event notifications. Specify the URL and the list of event types you want to subscribe to.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const webhook = await wizzit.webhooks.create({
+      url: 'https://yourapp.com/webhooks/wizzit',
+      events: ['document.created', 'document.updated', 'document.deleted'],
+      secret: process.env.WEBHOOK_SECRET,
+    });
+
+    console.log('Webhook registered:', webhook.id);
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os
+
+    webhook = wizzit.webhooks.create(
+        url="https://yourapp.com/webhooks/wizzit",
+        events=["document.created", "document.updated", "document.deleted"],
+        secret=os.environ["WEBHOOK_SECRET"]
+    )
+
+    print("Webhook registered:", webhook.id)
+    ```
+  </Tab>
+</Tabs>
+
+### `webhooks.list()`
+
+Returns all webhook endpoints registered for your workspace.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    const webhooks = await wizzit.webhooks.list();
+
+    webhooks.data.forEach(wh => {
+      console.log(wh.id, wh.url, wh.events);
+    });
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    webhooks = wizzit.webhooks.list()
+
+    for wh in webhooks.data:
+        print(wh.id, wh.url, wh.events)
+    ```
+  </Tab>
+</Tabs>
+
+### `webhooks.delete(id)`
+
+Removes a registered webhook by its ID. Wizzit will stop sending events to that endpoint immediately.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    await wizzit.webhooks.delete('wh_def456');
+
+    console.log('Webhook removed.');
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    wizzit.webhooks.delete("wh_def456")
+
+    print("Webhook removed.")
+    ```
+  </Tab>
+</Tabs>
+
+## Error Handling
+
+All SDK methods throw a `WizzitError` when a request fails. The error object exposes a `statusCode` (the HTTP status returned by the API) and a `message` describing what went wrong. Wrap your calls in a try/catch block to handle errors gracefully.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    import { WizzitClient, WizzitError } from '@wizzit/sdk';
+
+    const wizzit = new WizzitClient({ apiKey: process.env.WIZZIT_API_KEY });
+
+    try {
+      const doc = await wizzit.documents.get('doc_does_not_exist');
+    } catch (error) {
+      if (error instanceof WizzitError) {
+        console.error(`Wizzit API error ${error.statusCode}: ${error.message}`);
+      } else {
+        // Re-throw unexpected errors
+        throw error;
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os
+    from wizzit import WizzitClient, WizzitError
+
+    wizzit = WizzitClient(api_key=os.environ["WIZZIT_API_KEY"])
+
+    try:
+        doc = wizzit.documents.get("doc_does_not_exist")
+    except WizzitError as e:
+        print(f"Wizzit API error {e.status_code}: {e.message}")
+    except Exception as e:
+        # Re-raise unexpected errors
+        raise
+    ```
+  </Tab>
+</Tabs>

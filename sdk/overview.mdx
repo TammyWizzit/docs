@@ -1,0 +1,56 @@
+---
+title: "Wizzit SDK: Build Integrations in Your Language"
+sidebarTitle: "Overview"
+description: "The Wizzit SDK provides idiomatic client libraries for JavaScript/TypeScript, Python, and more, making it easy to manage documents and integrations programmatically."
+---
+
+The Wizzit SDK wraps the REST API with type-safe, ergonomic clients so you can build integrations without managing HTTP boilerplate. Whether you're automating document workflows, connecting third-party tools, or managing workspace permissions, the SDK gives you a clean, consistent interface in the language you already use.
+
+## Available SDKs
+
+<CardGroup cols={2}>
+  <Card title="JavaScript / TypeScript" icon="js" href="sdk/installation">
+    Full TypeScript support, works in Node.js and browser
+  </Card>
+  <Card title="Python" icon="python" href="sdk/installation">
+    Async-first Python client with Pydantic models
+  </Card>
+  <Card title="Ruby (Coming Soon)" icon="code">
+    Additional SDKs are in development
+  </Card>
+  <Card title="Go (Coming Soon)" icon="code">
+    Additional SDKs are in development
+  </Card>
+</CardGroup>
+
+## What You Can Do
+
+The Wizzit SDK gives you programmatic access to everything in your workspace. With it, you can:
+
+- **List, create, update, and delete documents** across all your collections
+- **Manage collections and tags** to keep your content organised at scale
+- **Configure integrations programmatically** without touching the Wizzit dashboard
+- **Register and manage webhooks** to react to document and workspace events in real time
+- **Manage workspace users and permissions** to control who has access to what
+
+## SDK vs REST API
+
+Both the SDK and the REST API give you full access to Wizzit's platform. Use this table to decide which is right for your situation.
+
+| When to use the SDK | When to use the REST API |
+|---|---|
+| You're building in JavaScript/TypeScript or Python | You're working in a language without an official SDK |
+| You want type safety and autocompletion in your editor | You need a lightweight integration with minimal dependencies |
+| You prefer automatic retries and error handling | You're making one-off or ad-hoc requests (e.g., with `curl`) |
+| You're building a production application | You're exploring the API or prototyping quickly |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="sdk/installation">
+    Install the SDK and configure your API key
+  </Card>
+  <Card title="Quick Reference" icon="book-open" href="sdk/quick-reference">
+    Browse every available method with code examples
+  </Card>
+</CardGroup>

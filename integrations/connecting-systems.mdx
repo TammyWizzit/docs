@@ -1,0 +1,103 @@
+---
+title: "Connecting External Systems to Wizzit"
+sidebarTitle: "Connecting Systems"
+description: "Set up pre-built connectors or custom API integrations to sync data between Wizzit and your CRM, ERP, or other business tools."
+---
+
+Wizzit supports both no-code and code-first approaches to connecting external systems. If you work with a supported platform, the dashboard's pre-built connectors get you up and running in minutes. For proprietary or highly customised systems, the Wizzit REST API gives you full control over how data flows between your tools and your workspace.
+
+## Pre-built Connectors
+
+Pre-built connectors are the fastest way to integrate Wizzit with a third-party platform. Wizzit handles the authentication handshake and provides a guided field-mapping interface so you don't need to write any code.
+
+**Supported platforms:** Salesforce, HubSpot, Slack, Microsoft Teams, Google Drive, Dropbox
+
+<Steps>
+  <Step title="Open the Integrations dashboard">
+    Go to **Settings → Integrations** in your Wizzit dashboard.
+  </Step>
+  <Step title="Browse available connectors">
+    Scroll through the connector catalogue or use the search bar to find the platform you want to connect.
+  </Step>
+  <Step title="Start the connection">
+    Click **Connect** on the desired platform's connector card.
+  </Step>
+  <Step title="Authenticate with the external service">
+    You will be redirected to the external platform to authorise Wizzit's access. Sign in and approve the requested permissions.
+  </Step>
+  <Step title="Map document fields">
+    Use the field-mapping interface to match Wizzit document properties to their corresponding fields in the external system.
+  </Step>
+  <Step title="Enable the connector">
+    Click **Enable** to activate the integration. Wizzit will begin syncing data according to your field mappings.
+  </Step>
+</Steps>
+
+## Custom API Integration
+
+If your target system isn't in the pre-built catalogue, you can register a custom integration via the Wizzit REST API. A custom integration defines where Wizzit should send data and which events should trigger a sync.
+
+Send a `POST` request to create a new integration:
+
+```bash
+POST https://api.wizzit.com/v1/integrations
+```
+
+```json
+{
+  "name": "CRM Sync",
+  "type": "custom",
+  "target_url": "https://api.yourcrm.com/documents",
+  "auth_type": "bearer",
+  "auth_token": "YOUR_CRM_TOKEN",
+  "sync_on": ["document.created", "document.updated"]
+}
+```
+
+A successful response returns the new integration object:
+
+```json
+{
+  "id": "int_a1b2c3d4",
+  "name": "CRM Sync",
+  "type": "custom",
+  "target_url": "https://api.yourcrm.com/documents",
+  "status": "active",
+  "sync_on": ["document.created", "document.updated"],
+  "created_at": "2024-10-15T09:00:00Z"
+}
+```
+
+## Managing Integrations
+
+Once an integration is active, you can list, disable, or delete it at any time using the REST API.
+
+**List all integrations:**
+
+```bash
+GET https://api.wizzit.com/v1/integrations
+```
+
+**Disable an integration:**
+
+```bash
+PATCH https://api.wizzit.com/v1/integrations/{id}
+```
+
+```json
+{
+  "status": "disabled"
+}
+```
+
+**Delete an integration:**
+
+```bash
+DELETE https://api.wizzit.com/v1/integrations/{id}
+```
+
+A `204 No Content` response confirms the integration has been removed.
+
+<Warning>
+  If a third-party credential used by an integration is ever compromised, revoke or rotate that credential in the external system immediately, then update or delete the affected Wizzit integration. Leaving an integration active with a compromised token could expose sensitive documents to unauthorised parties.
+</Warning>

@@ -1,0 +1,71 @@
+---
+title: "Documents in Wizzit: Store, Access, and Share"
+sidebarTitle: "Overview"
+description: "Wizzit documents are the central unit of your knowledge store. Learn about document types, structure, visibility settings, and how to manage them."
+---
+
+Wizzit organises all your company knowledge as documents — from internal SOPs to client-facing reports. Whether you're storing sensitive runbooks for your engineering team or sharing polished proposals with prospective clients, every piece of content lives as a document in your workspace. This page walks you through the document model so you know exactly what to expect as you build your knowledge store.
+
+## Document Types
+
+Wizzit supports three document types, each designed for a distinct purpose within your organisation.
+
+- **Internal Documents**: Only visible to workspace members. Use these for SOPs, policies, runbooks, and any content that should never leave your organisation.
+- **Client-Facing Documents**: Shared with external clients via a secure link or the API. Use these for proposals, reports, and onboarding guides that need to reach people outside your workspace.
+- **Template Documents**: Reusable structures that enforce consistent formatting across your team. Start a new document from a template to save time and maintain a uniform look and feel.
+
+## Document Structure
+
+Every document in Wizzit is made up of a standard set of fields. Understanding these fields helps you query, filter, and manage documents through both the dashboard and the API.
+
+| Field | Description |
+|---|---|
+| `id` | Unique identifier for the document, auto-generated on creation. |
+| `title` | Human-readable name displayed in the dashboard and shared links. |
+| `content` | The body of the document, supporting Markdown. |
+| `type` | One of `internal`, `client-facing`, or `template`. |
+| `visibility` | Controls access scope: `private`, `internal`, or `public`. |
+| `tags` | Freeform labels used for filtering and organisation. |
+| `created_at` | ISO 8601 timestamp of when the document was first created. |
+| `updated_at` | ISO 8601 timestamp of the most recent update. |
+| `author` | The workspace member who originally created the document. |
+
+## Document Lifecycle
+
+Documents in Wizzit move through a defined lifecycle from first draft to long-term archival. Each stage has a clear meaning so your team always knows the status of a given document.
+
+<Steps>
+  <Step title="Draft">
+    The document is a work in progress. It is not visible to other workspace members unless explicitly shared, and it cannot be accessed by clients.
+  </Step>
+  <Step title="Review">
+    The document has been submitted for internal review. Designated reviewers can comment and suggest edits before the document is approved for publication.
+  </Step>
+  <Step title="Published">
+    The document is live and accessible according to its visibility setting. Client-facing documents at this stage can be shared via link or the API.
+  </Step>
+  <Step title="Archived">
+    The document is no longer active but is preserved for reference. Archived documents are hidden from default views and cannot be shared, but remain searchable by workspace members.
+  </Step>
+</Steps>
+
+## Explore Documents
+
+<CardGroup cols={2}>
+  <Card title="Creating Documents" icon="file-plus" href="/documents/creating-documents">
+    Learn how to create documents via the dashboard or the REST API, including all available metadata options.
+  </Card>
+  <Card title="Organizing Documents" icon="folders" href="/documents/organizing-documents">
+    Use collections, tags, and search to keep your document library structured and easy to navigate.
+  </Card>
+  <Card title="Sharing & Permissions" icon="lock-open" href="/documents/sharing-and-permissions">
+    Control who can view, edit, and share documents using roles, visibility settings, and shareable links.
+  </Card>
+  <Card title="Documents API" icon="code" href="/api/documents">
+    Full reference for the Wizzit Documents REST API, including request schemas and response examples.
+  </Card>
+</CardGroup>
+
+<Tip>
+  If you need to create or update many documents at once, use the Wizzit SDK rather than making individual API calls. The SDK exposes batch methods that handle rate limiting and error retries automatically, making bulk operations significantly faster and more reliable.
+</Tip>

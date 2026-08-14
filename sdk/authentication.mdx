@@ -1,0 +1,99 @@
+---
+title: "Authenticating with the Wizzit SDK"
+sidebarTitle: "Authentication"
+description: "Learn how to authenticate your Wizzit SDK client using API keys, including key rotation, per-request overrides, and handling auth errors."
+---
+
+The Wizzit SDK uses API key authentication. Once you pass your key during client initialisation, the SDK attaches it to every request automatically — you don't need to manage headers or tokens yourself. This page walks you through obtaining a key, using it securely, and handling edge cases like key rotation and authentication errors.
+
+## Getting an API Key
+
+<Steps>
+  <Step title="Sign in to your workspace">
+    Go to [app.wizzit.com](https://app.wizzit.com) and sign in with your account credentials.
+  </Step>
+  <Step title="Open API Keys settings">
+    Navigate to **Settings → API Keys** from the left sidebar.
+  </Step>
+  <Step title="Create a new key">
+    Click **Create New Key** to open the key creation dialog.
+  </Step>
+  <Step title="Name your key">
+    Give the key a descriptive name such as `Production App` or `CI Pipeline` so you can identify it later.
+  </Step>
+  <Step title="Copy and store your key">
+    Copy the key from the confirmation screen and store it somewhere safe, such as your password manager or secrets vault.
+  </Step>
+</Steps>
+
+<Warning>
+  Your API key is only shown once at the time of creation. If you close the dialog without copying it, you'll need to delete the key and create a new one.
+</Warning>
+
+## Using Your API Key
+
+Pass your key to the `WizzitClient` constructor using an environment variable. This keeps the key out of your source code and makes it easy to rotate without a code change.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```typescript
+    import { WizzitClient } from '@wizzit/sdk';
+
+    const wizzit = new WizzitClient({
+      apiKey: process.env.WIZZIT_API_KEY,
+    });
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os
+    from wizzit import WizzitClient
+
+    wizzit = WizzitClient(
+        api_key=os.environ["WIZZIT_API_KEY"]
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Per-Request Authentication
+
+If you need to make a specific call using a different API key — for example, when acting on behalf of a different workspace — you can override the client-level key on any individual request:
+
+```typescript
+const doc = await wizzit.documents.get('doc_abc123', {
+  apiKey: 'different_key_for_this_request',
+});
+```
+
+The per-request key is used only for that call. All subsequent requests continue to use the key set at initialisation.
+
+## Key Rotation
+
+Rotating API keys regularly reduces the risk of a compromised key being used without your knowledge. Follow these steps to rotate without downtime:
+
+<Steps>
+  <Step title="Create a new API key">
+    In **Settings → API Keys**, click **Create New Key** and give it the same name as the key you're replacing (with a version suffix if helpful, e.g., `Production App v2`).
+  </Step>
+  <Step title="Update your application">
+    Update the environment variable or secret in your deployment environment to use the new key, then redeploy or restart your application.
+  </Step>
+  <Step title="Delete the old key">
+    Once you've confirmed your application is running correctly with the new key, return to **Settings → API Keys** and delete the old key.
+  </Step>
+</Steps>
+
+<Tip>
+  Use meaningful, specific names for your API keys — for example, `Staging Webhook Service` rather than `Key 1`. This makes it immediately clear which application or environment each key belongs to, which is especially useful when you need to revoke or rotate a specific key quickly.
+</Tip>
+
+## Authentication Errors
+
+If a request fails for an authentication-related reason, the SDK throws a `WizzitError` with a `statusCode` matching one of the following:
+
+| Error Code | Meaning | How to Fix |
+|---|---|---|
+| `401 Unauthorized` | The API key is missing, malformed, or has been deleted | Verify that your `WIZZIT_API_KEY` environment variable is set correctly and that the key exists in **Settings → API Keys** |
+| `403 Forbidden` | The API key is valid but does not have permission to perform this action | Check the key's assigned scopes in **Settings → API Keys**, or use a key with broader permissions |
+| `429 Rate Limited` | Your key has exceeded the allowed number of requests in a given time window | Slow down your request rate or implement exponential backoff; see the [rate limits documentation](https://docs.wizzit.com/api-reference/rate-limits) for thresholds |

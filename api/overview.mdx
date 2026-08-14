@@ -1,0 +1,109 @@
+---
+title: "Wizzit REST API Reference Overview"
+sidebarTitle: "Overview"
+description: "The Wizzit REST API lets you manage documents, integrations, and users programmatically. All requests use HTTPS and return JSON."
+---
+
+The Wizzit REST API gives you programmatic access to everything on the platform — documents, integrations, users, and webhooks. Every request is made over HTTPS to a versioned base URL, and every response is a JSON object with a consistent structure. Whether you're automating document workflows, syncing external tools, or managing your workspace, the API provides a reliable foundation to build on.
+
+## Base URL
+
+All API requests are made to the following base URL:
+
+```
+https://api.wizzit.com/v1
+```
+
+The version segment (`v1`) is part of the URL. See [Versioning](#versioning) below for details on how breaking changes are handled.
+
+## Authentication
+
+Every request must include your API key as a Bearer token in the `Authorization` header. You can create and manage API keys from your workspace settings.
+
+See the [Authentication](/api/authentication) guide for full details on creating keys, assigning scopes, and rotating credentials.
+
+## Request Format
+
+For requests that include a body (`POST`, `PUT`, `PATCH`), you must set the `Content-Type` header to `application/json` and provide a valid JSON object as the request body.
+
+```bash
+curl https://api.wizzit.com/v1/documents \
+  -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "title": "Onboarding Guide", "visibility": "private" }'
+```
+
+`GET` and `DELETE` requests do not require a body. Filter and pagination options are passed as query string parameters.
+
+## Response Format
+
+All responses — both successful and failed — return a JSON object. Successful responses include a `success: true` flag and a `data` field containing the result. List endpoints also include a `meta` object with pagination information.
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 150
+  }
+}
+```
+
+Error responses follow a separate structure. See the [Errors](/api/errors) reference for full details.
+
+## Pagination
+
+List endpoints support cursor-free page-based pagination using two query parameters:
+
+| Parameter | Type    | Default | Maximum | Description                          |
+|-----------|---------|---------|---------|--------------------------------------|
+| `page`    | integer | `1`     | —       | The page number to retrieve.         |
+| `limit`   | integer | `20`    | `100`   | The number of results per page.      |
+
+Pass these as query parameters on any list endpoint:
+
+```bash
+curl "https://api.wizzit.com/v1/documents?page=2&limit=50" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The `meta` object in the response tells you the current page, results per page, and the total number of matching records so you can calculate how many pages exist.
+
+## Rate Limits
+
+Each API key is limited to **100 requests per minute**. If you exceed this limit, the API returns a `429 Too Many Requests` response.
+
+Every response includes the following headers to help you track your usage:
+
+| Header                  | Description                                                        |
+|-------------------------|--------------------------------------------------------------------|
+| `X-RateLimit-Remaining` | The number of requests remaining in the current 60-second window.  |
+| `X-RateLimit-Reset`     | A Unix timestamp indicating when the current window resets.        |
+
+We recommend implementing exponential backoff when you receive a `429` response. See [Errors](/api/errors) for handling guidance.
+
+## Versioning
+
+The current API version is **`v1`**, reflected in the base URL. The API follows a compatibility-first policy — additive changes such as new endpoints, new optional fields, and new response properties may be introduced without a version increment.
+
+Breaking changes — such as removing fields, changing field types, or altering endpoint behaviour — will be introduced under a new version (`v2`), and the prior version will remain available for a deprecation period with advance notice.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api/authentication">
+    Learn how to create API keys, assign scopes, and authenticate your requests.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/api/errors">
+    Understand error codes, HTTP status codes, and how to handle failures.
+  </Card>
+  <Card title="Documents API" icon="file-lines" href="/api/documents">
+    List, create, update, delete, and share documents via the REST API.
+  </Card>
+  <Card title="Integrations API" icon="plug" href="/api/integrations">
+    Connect external systems to Wizzit using the integrations endpoints.
+  </Card>
+</CardGroup>

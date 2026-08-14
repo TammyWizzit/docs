@@ -1,0 +1,93 @@
+---
+title: "Wizzit Webhooks: Real-Time Event Notifications"
+sidebarTitle: "Webhooks"
+description: "Register webhook endpoints to receive real-time HTTP notifications when documents are created, updated, shared, or deleted in your Wizzit workspace."
+---
+
+Webhooks let your systems react instantly to activity in Wizzit without polling the API. When a subscribed event occurs — such as a document being created or an integration encountering an error — Wizzit sends an HTTP `POST` request to your registered endpoint with a structured JSON payload describing what happened.
+
+## Supported Events
+
+| Event | Description |
+|---|---|
+| `document.created` | A new document has been created in the workspace |
+| `document.updated` | An existing document's content or metadata has changed |
+| `document.deleted` | A document has been permanently deleted |
+| `document.shared` | A document has been shared with a user or external party |
+| `integration.connected` | A new integration has been successfully activated |
+| `integration.error` | An active integration encountered a sync error |
+
+## Registering a Webhook
+
+Send a `POST` request to create a new webhook endpoint subscription:
+
+```bash
+POST https://api.wizzit.com/v1/webhooks
+```
+
+```json
+{
+  "url": "https://your-app.com/webhooks/wizzit",
+  "events": ["document.created", "document.updated"],
+  "secret": "your-webhook-secret"
+}
+```
+
+A successful response confirms the webhook is active:
+
+```json
+{
+  "id": "wh_9z8y7x6w",
+  "url": "https://your-app.com/webhooks/wizzit",
+  "events": ["document.created", "document.updated"],
+  "status": "active",
+  "created_at": "2024-10-15T12:00:00Z"
+}
+```
+
+## Webhook Payload Structure
+
+Every webhook delivery shares the same envelope structure. The `data` object varies by event type. Below is an example payload for a `document.created` event:
+
+```json
+{
+  "event": "document.created",
+  "timestamp": "2024-10-15T14:32:00Z",
+  "workspace_id": "ws_abc123",
+  "data": {
+    "id": "doc_xyz789",
+    "title": "Client Proposal",
+    "type": "client-facing",
+    "created_by": "user_def456"
+  }
+}
+```
+
+## Verifying Webhook Signatures
+
+Wizzit signs each payload with HMAC-SHA256 using the secret you provided when registering the webhook. The signature is delivered in the `X-Wizzit-Signature` header of every request. Always verify this signature before processing the payload to ensure the request genuinely originated from Wizzit.
+
+Here is an example verification function in Node.js:
+
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhook(payload, signature, secret) {
+  const hmac = crypto.createHmac('sha256', secret);
+  const expected = hmac.update(payload).digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(expected),
+    Buffer.from(signature)
+  );
+}
+```
+
+Pass the raw request body as `payload`, the value of the `X-Wizzit-Signature` header as `signature`, and the secret you registered with the webhook. The function returns `true` if the signature is valid.
+
+<Note>
+  Wizzit retries failed webhook deliveries up to **3 times** with exponential backoff — at 30 seconds, 5 minutes, and 30 minutes after the initial attempt. If all retries fail, the delivery is marked as failed and you can inspect it in **Settings → Webhooks → Delivery Logs**. Make sure your endpoint responds with a `2xx` status code within 10 seconds to acknowledge receipt.
+</Note>
+
+<Tip>
+  Use the built-in webhook tester in the Wizzit dashboard to send sample payloads to your endpoint before going live. Navigate to **Settings → Webhooks**, select your registered webhook, and click **Send Test Event** to verify your handler is working correctly.
+</Tip>

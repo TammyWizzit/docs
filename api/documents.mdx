@@ -1,0 +1,433 @@
+---
+title: "REST API Endpoints for Documents"
+sidebarTitle: "Documents API"
+description: "Full reference for Wizzit document endpoints: list, create, retrieve, update, delete, and share documents via the REST API."
+---
+
+Documents are the core resource in Wizzit. Each document belongs to a workspace and can be internal (visible only to your team) or shared with external clients. The Documents API lets you create and manage documents programmatically — whether you're automating publishing workflows, syncing content from external sources, or building a custom document portal for your clients.
+
+---
+
+## GET /documents
+
+Retrieve a paginated list of documents in your workspace. You can filter by type, visibility, and tag.
+
+### Query Parameters
+
+<ParamField query="type" type="string">
+  Filter by document type. Accepted values: `page`, `file`, `template`.
+</ParamField>
+
+<ParamField query="visibility" type="string">
+  Filter by visibility setting. Accepted values: `private`, `internal`, `public`.
+</ParamField>
+
+<ParamField query="tag" type="string">
+  Filter documents that include a specific tag (exact match).
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  The page number to retrieve.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of results per page. Maximum is `100`.
+</ParamField>
+
+### Example Request
+
+```bash
+curl "https://api.wizzit.com/v1/documents?visibility=internal&limit=5" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "doc_01hx4k2mz9",
+      "title": "Onboarding Guide",
+      "type": "page",
+      "visibility": "internal",
+      "tags": ["hr", "onboarding"],
+      "created_at": "2024-03-15T09:22:00Z",
+      "updated_at": "2024-04-01T14:05:00Z"
+    },
+    {
+      "id": "doc_01hx4k9pq7",
+      "title": "Security Policy",
+      "type": "page",
+      "visibility": "internal",
+      "tags": ["compliance"],
+      "created_at": "2024-02-10T11:00:00Z",
+      "updated_at": "2024-02-10T11:00:00Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 5,
+    "total": 42
+  }
+}
+```
+
+---
+
+## POST /documents
+
+Create a new document in your workspace.
+
+### Request Body
+
+<ParamField body="title" type="string" required>
+  The title of the document. Must be between 1 and 255 characters.
+</ParamField>
+
+<ParamField body="content" type="string">
+  The body content of the document in Markdown format.
+</ParamField>
+
+<ParamField body="type" type="string" default="page">
+  The document type. Accepted values: `page`, `file`, `template`.
+</ParamField>
+
+<ParamField body="visibility" type="string" default="private">
+  Who can access the document. Accepted values: `private`, `internal`, `public`.
+</ParamField>
+
+<ParamField body="tags" type="array">
+  An array of tag strings to categorise the document (e.g., `["hr", "policy"]`).
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/documents \
+  -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Client Onboarding Checklist",
+    "content": "## Welcome\n\nUse this checklist to complete onboarding.",
+    "type": "page",
+    "visibility": "internal",
+    "tags": ["onboarding", "client"]
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "doc_01hx5m3rw2",
+    "title": "Client Onboarding Checklist",
+    "content": "## Welcome\n\nUse this checklist to complete onboarding.",
+    "type": "page",
+    "visibility": "internal",
+    "tags": ["onboarding", "client"],
+    "created_at": "2024-05-20T08:30:00Z",
+    "updated_at": "2024-05-20T08:30:00Z"
+  }
+}
+```
+
+Returns `201 Created` on success.
+
+---
+
+## GET /documents/{id}
+
+Retrieve a single document by its ID.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the document (e.g., `doc_01hx5m3rw2`).
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "doc_01hx5m3rw2",
+    "title": "Client Onboarding Checklist",
+    "content": "## Welcome\n\nUse this checklist to complete onboarding.",
+    "type": "page",
+    "visibility": "internal",
+    "tags": ["onboarding", "client"],
+    "created_at": "2024-05-20T08:30:00Z",
+    "updated_at": "2024-05-20T08:30:00Z"
+  }
+}
+```
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  The unique identifier of the document.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  The document title.
+</ResponseField>
+
+<ResponseField name="content" type="string">
+  The document body content in Markdown format.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  The document type: `page`, `file`, or `template`.
+</ResponseField>
+
+<ResponseField name="visibility" type="string">
+  The visibility setting: `private`, `internal`, or `public`.
+</ResponseField>
+
+<ResponseField name="tags" type="array">
+  List of tags associated with the document.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the document was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the most recent update.
+</ResponseField>
+
+---
+
+## PUT /documents/{id}
+
+Fully replace a document's fields. All writable fields are overwritten — any field not included in the request body is reset to its default value. Use [PATCH /documents/{id}](#patch-documentsid) if you only want to update specific fields.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the document to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="title" type="string" required>
+  The updated document title.
+</ParamField>
+
+<ParamField body="content" type="string">
+  The updated body content in Markdown format.
+</ParamField>
+
+<ParamField body="type" type="string">
+  The updated document type: `page`, `file`, or `template`.
+</ParamField>
+
+<ParamField body="visibility" type="string">
+  The updated visibility: `private`, `internal`, or `public`.
+</ParamField>
+
+<ParamField body="tags" type="array">
+  The updated list of tags. Replaces the existing tag list entirely.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
+  -X PUT \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Client Onboarding Checklist (Updated)",
+    "content": "## Welcome\n\nRevised checklist for Q3.",
+    "type": "page",
+    "visibility": "public",
+    "tags": ["onboarding"]
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "doc_01hx5m3rw2",
+    "title": "Client Onboarding Checklist (Updated)",
+    "content": "## Welcome\n\nRevised checklist for Q3.",
+    "type": "page",
+    "visibility": "public",
+    "tags": ["onboarding"],
+    "created_at": "2024-05-20T08:30:00Z",
+    "updated_at": "2024-05-21T10:15:00Z"
+  }
+}
+```
+
+---
+
+## PATCH /documents/{id}
+
+Partially update a document. Only the fields you include in the request body are changed — all other fields remain untouched.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the document to update.
+</ParamField>
+
+### Request Body
+
+Include any subset of the writable document fields: `title`, `content`, `type`, `visibility`, or `tags`.
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
+  -X PATCH \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "visibility": "public" }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "doc_01hx5m3rw2",
+    "title": "Client Onboarding Checklist",
+    "content": "## Welcome\n\nUse this checklist to complete onboarding.",
+    "type": "page",
+    "visibility": "public",
+    "tags": ["onboarding", "client"],
+    "created_at": "2024-05-20T08:30:00Z",
+    "updated_at": "2024-05-21T11:00:00Z"
+  }
+}
+```
+
+---
+
+## DELETE /documents/{id}
+
+Permanently delete a document from your workspace. This action cannot be undone.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the document to delete.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
+  -X DELETE \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+Returns `204 No Content` with an empty body on success.
+
+---
+
+## POST /documents/{id}/share
+
+Share a document with a client by email. Wizzit sends the recipient an invitation email and returns a secure share link you can also distribute directly.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the document to share.
+</ParamField>
+
+### Request Body
+
+<ParamField body="email" type="string" required>
+  The email address of the client you want to share the document with.
+</ParamField>
+
+<ParamField body="role" type="string" required>
+  The access role for the recipient. Currently supports `viewer`.
+</ParamField>
+
+<ParamField body="expires_at" type="string">
+  An ISO 8601 datetime string indicating when the share link should expire. If omitted, the link does not expire.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2/share \
+  -X POST \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "client@example.com",
+    "role": "viewer",
+    "expires_at": "2024-12-31T23:59:59Z"
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "share_id": "shr_01hx6n8qv3",
+    "document_id": "doc_01hx5m3rw2",
+    "email": "client@example.com",
+    "role": "viewer",
+    "share_url": "https://app.wizzit.com/shared/shr_01hx6n8qv3",
+    "expires_at": "2024-12-31T23:59:59Z",
+    "created_at": "2024-05-21T12:00:00Z"
+  }
+}
+```
+
+### Response Fields
+
+<ResponseField name="share_id" type="string">
+  The unique identifier for this share grant.
+</ResponseField>
+
+<ResponseField name="document_id" type="string">
+  The ID of the document that was shared.
+</ResponseField>
+
+<ResponseField name="email" type="string">
+  The email address the document was shared with.
+</ResponseField>
+
+<ResponseField name="role" type="string">
+  The access role granted to the recipient.
+</ResponseField>
+
+<ResponseField name="share_url" type="string">
+  The direct URL the recipient can use to access the document.
+</ResponseField>
+
+<ResponseField name="expires_at" type="string">
+  The expiry datetime of the share link, or `null` if it does not expire.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the share was created.
+</ResponseField>

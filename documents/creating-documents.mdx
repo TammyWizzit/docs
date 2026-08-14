@@ -1,0 +1,103 @@
+---
+title: "Creating Documents in Wizzit"
+sidebarTitle: "Creating Documents"
+description: "Create internal and client-facing documents in Wizzit using the dashboard or the REST API. Includes examples, metadata options, and best practices."
+---
+
+There are two ways to create documents in Wizzit: through the dashboard UI for a guided, point-and-click experience, or through the REST API for programmatic creation and automation. Both methods support the full range of document types, visibility settings, and metadata fields. Choose the approach that fits your workflow — or combine them as your needs evolve.
+
+## Via the Dashboard
+
+The dashboard is the fastest way to get a document created and published without writing any code.
+
+<Steps>
+  <Step title="Click New Document in the sidebar">
+    From any page in your Wizzit workspace, select **New Document** in the left sidebar. This opens the document creation modal.
+  </Step>
+  <Step title="Choose a document type">
+    Select one of the three document types: **Internal**, **Client-Facing**, or **Template**. This setting determines the default visibility and how the document behaves when shared.
+  </Step>
+  <Step title="Fill in the title and content">
+    Enter a descriptive title and write your document content in the Markdown editor. You can use headings, lists, code blocks, and tables — all standard Markdown syntax is supported.
+  </Step>
+  <Step title="Set visibility and tags">
+    Choose a visibility level (`private`, `internal`, or `public`) and add any relevant tags to make the document easier to find later. Tags are freeform, so you can use whatever naming convention suits your team.
+  </Step>
+  <Step title="Click Publish">
+    When you're ready, click **Publish** to make the document live according to the visibility setting you selected. You can also save as a draft if the document needs further work before it's ready.
+  </Step>
+</Steps>
+
+## Via the API
+
+For automated workflows, integrations, or bulk document creation, use the REST API. All API requests require a valid API key passed in the `Authorization` header.
+
+Send a `POST` request to the documents endpoint:
+
+```bash
+POST https://api.wizzit.com/v1/documents
+```
+
+**Headers**
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
+```
+
+**Request body**
+
+```json
+{
+  "title": "Q3 Client Report",
+  "content": "## Overview\n\nThis report covers Q3 performance...",
+  "type": "client-facing",
+  "visibility": "public",
+  "tags": ["quarterly", "report"]
+}
+```
+
+**Success response** — `201 Created`
+
+```json
+{
+  "id": "doc_01j8tz4x9kqm2vbn3cpw7yhf6e",
+  "title": "Q3 Client Report",
+  "created_at": "2024-10-14T09:32:11Z",
+  "url": "https://share.wizzit.com/docs/doc_01j8tz4x9kqm2vbn3cpw7yhf6e"
+}
+```
+
+The `url` field in the response is the shareable link for the document. This link is only accessible to external users if the document's `visibility` is set to `public`.
+
+## Document Fields Reference
+
+Use these fields when constructing your API request body or reviewing document payloads.
+
+<ParamField body="title" type="string" required>
+  The display name for the document. Shown in the dashboard, search results, and shared links. Keep it concise and descriptive.
+</ParamField>
+
+<ParamField body="content" type="string" required>
+  The full body of the document in Markdown format. Supports headings, lists, tables, code blocks, and inline formatting.
+</ParamField>
+
+<ParamField body="type" type="string">
+  The document type. Accepted values: `internal`, `client-facing`, `template`. Defaults to `internal` if omitted.
+</ParamField>
+
+<ParamField body="visibility" type="string">
+  Controls who can access the document. Accepted values: `private`, `internal`, `public`. Defaults to `private` if omitted.
+</ParamField>
+
+<ParamField body="tags" type="array">
+  An array of freeform string labels. Use tags to group related documents and make them easier to filter in the dashboard and via the API.
+</ParamField>
+
+<Warning>
+  Setting `visibility` to `public` makes the document accessible to anyone with the shareable link — no authentication required. Only use this setting for documents that are safe to share openly. For sensitive content, use `private` or `internal` and share via the API-driven permissions model instead.
+</Warning>
+
+<Note>
+  For fine-grained access control — including granting specific clients view-only access or setting link expiry dates — see [Sharing & Permissions](/documents/sharing-and-permissions).
+</Note>

@@ -1,0 +1,162 @@
+---
+title: "Troubleshooting Common Wizzit Issues"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and resolve common Wizzit issues including API errors, authentication failures, integration problems, and webhook delivery failures."
+---
+
+When something is not working as expected, start by checking the [Wizzit status page](https://status.wizzit.com) to see whether there is an active incident. If the platform is operating normally, use the sections below to diagnose and fix the most common issues. If you work through the steps and still cannot resolve the problem, the support team is ready to help — see [Getting More Help](#getting-more-help) at the bottom of this page.
+
+## API Errors
+
+The table below maps HTTP status codes to their Wizzit error codes, explains the most common cause, and tells you how to fix each one.
+
+| HTTP Status | Error Code | Common Cause | Fix |
+|---|---|---|---|
+| 400 Bad Request | `invalid_params` | A required field is missing or a value is the wrong type | Check the required fields listed in the [API reference](/api/overview) for the endpoint you are calling |
+| 401 Unauthorized | `invalid_api_key` | The API key is missing, expired, or malformed | Verify that your `Authorization` header is formatted as `Bearer YOUR_KEY` |
+| 403 Forbidden | `insufficient_scope` | The API key does not have the permission needed for this action | Create a new API key in **Settings → API Keys** with the required scopes |
+| 404 Not Found | `not_found` | The resource ID does not exist or belongs to a different workspace | Confirm the document or resource ID is correct and exists in your workspace |
+| 429 Too Many Requests | `rate_limited` | You have exceeded the rate limit for your API key | Slow your request rate and implement exponential backoff before retrying |
+| 500 Internal Server Error | `server_error` | An unexpected error occurred on the Wizzit side | Check [status.wizzit.com](https://status.wizzit.com) for active incidents, then retry with backoff |
+
+## Authentication Issues
+
+<Accordion title="My API key returns 401 Unauthorized">
+  Work through the following checks in order:
+
+  1. **Confirm the key is active.** Open **Settings → API Keys** and check that the key has not been revoked or expired.
+  2. **Verify the header format.** The `Authorization` header must be formatted exactly as shown:
+
+     ```http
+     Authorization: Bearer YOUR_API_KEY
+     ```
+
+     A common mistake is omitting the word `Bearer` or adding extra spaces.
+
+  3. **Check the key's scopes.** Even a valid key returns `401` if it was created without the scopes required by the endpoint. If in doubt, create a new key with broader scopes and test again.
+  4. **Look for whitespace.** If you copied the key from a text file or environment variable, ensure there are no leading or trailing spaces.
+
+  If none of these steps resolve the issue, create a fresh API key and test with that.
+</Accordion>
+
+<Accordion title="I can't see my API key after creation">
+  This is expected behaviour. For security reasons, Wizzit displays your API key **only once**, immediately after you create it. If you navigated away without copying it, the key cannot be retrieved.
+
+  To regain access:
+
+  1. Go to **Settings → API Keys**.
+  2. Revoke the key you can no longer use.
+  3. Click **Create Key**, set the required scopes, and copy the new key before closing the dialog.
+
+  <Tip>
+    Store your API keys in a secrets manager (such as AWS Secrets Manager, HashiCorp Vault, or your CI/CD platform's secret store) so you never need to copy them manually again.
+  </Tip>
+</Accordion>
+
+## Integration Issues
+
+<Accordion title="My integration stopped syncing">
+  If an integration that was previously working has stopped syncing, follow these steps:
+
+  1. **Check the integration status** by calling the API:
+
+     ```bash
+     curl -X GET https://api.wizzit.com/v1/integrations/{id} \
+       -H "Authorization: Bearer YOUR_API_KEY"
+     ```
+
+     Inspect the `status` field in the response. A value of `error` or `disabled` indicates a problem.
+
+  2. **Verify the target URL is reachable.** If the integration pushes data to an external service, confirm that the destination URL is online and accepting connections.
+
+  3. **Review the error logs.** Go to **Settings → Integrations**, select the integration, and open the **Logs** tab. Error messages here will point to the specific failure.
+
+  4. **Re-authorise if needed.** If the integration uses OAuth, the access token may have expired. Disconnect and reconnect the integration to generate a fresh token.
+</Accordion>
+
+<Accordion title="Webhook deliveries are failing">
+  If Wizzit is sending webhooks but your endpoint is not receiving them correctly, check the following:
+
+  1. **Confirm your endpoint returns a 2xx response.** Wizzit considers a delivery successful only when your server responds with an HTTP status code in the `200–299` range within 10 seconds. Any other response (including redirects) is treated as a failure.
+
+  2. **Check your signature verification code.** Wizzit signs every webhook payload with a secret. If your verification code rejects valid signatures, you may be computing the HMAC incorrectly. Refer to the [Webhooks documentation](/integrations/webhooks) for the exact verification steps.
+
+  3. **Review the delivery logs.** Go to **Settings → Webhooks**, select your endpoint, and click **Delivery Logs**. Each entry shows the request payload, the response your server returned, and whether the delivery was retried.
+
+  4. **Check for firewall rules.** Ensure your server is not blocking requests from Wizzit's IP ranges. Contact support for the current list of outbound IP addresses if needed.
+
+  <Warning>
+    Wizzit retries failed webhook deliveries up to five times using exponential backoff. If all retries fail, the delivery is marked as permanently failed and will not be retried again.
+  </Warning>
+</Accordion>
+
+## SDK Issues
+
+<Accordion title="'Module not found: @wizzit/sdk'">
+  This error means the Wizzit JavaScript SDK is not installed in your project. Run the following command in your project directory:
+
+  ```bash
+  npm install @wizzit/sdk
+  ```
+
+  Or, if you use Yarn or pnpm:
+
+  ```bash
+  yarn add @wizzit/sdk
+  # or
+  pnpm add @wizzit/sdk
+  ```
+
+  Also ensure you are running **Node.js 16 or later**. You can check your version with:
+
+  ```bash
+  node --version
+  ```
+
+  If you are on an older version of Node.js, upgrade via [nodejs.org](https://nodejs.org) or a version manager such as `nvm`.
+</Accordion>
+
+<Accordion title="SDK requests time out">
+  By default, the Wizzit SDK waits **30 seconds** before timing out a request. If you are working with large documents or a slow network connection, you may need to increase this value.
+
+  Pass a `timeout` option (in milliseconds) when constructing the `WizzitClient`:
+
+  ```typescript
+  import { WizzitClient } from "@wizzit/sdk";
+
+  const client = new WizzitClient({
+    apiKey: process.env.WIZZIT_API_KEY,
+    timeout: 60000, // 60 seconds
+  });
+  ```
+
+  For Python:
+
+  ```python
+  from wizzit import WizzitClient
+
+  client = WizzitClient(
+      api_key=os.environ["WIZZIT_API_KEY"],
+      timeout=60,  # seconds
+  )
+  ```
+
+  If requests are timing out consistently rather than occasionally, check your network connection and review whether the endpoint you are calling is listed as degraded on [status.wizzit.com](https://status.wizzit.com).
+</Accordion>
+
+## Getting More Help
+
+If the steps above did not resolve your issue, the Wizzit support team is here to help.
+
+<CardGroup cols={2}>
+  <Card title="Email Support" icon="envelope">
+    Send a description of your issue, any relevant error messages, and your workspace ID to **support@wizzit.com**. The team typically responds within one business day.
+  </Card>
+  <Card title="Status Page" icon="signal">
+    Check [status.wizzit.com](https://status.wizzit.com) for live information on platform health, active incidents, and the history of past incidents.
+  </Card>
+</CardGroup>
+
+<Note>
+  Enterprise customers have access to **dedicated support** with guaranteed response times under a formal SLA. If you are on an Enterprise plan, use the dedicated support channel provided during your onboarding to ensure your queries are prioritised.
+</Note>

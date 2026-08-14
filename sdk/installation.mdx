@@ -1,0 +1,94 @@
+---
+title: "Installing the Wizzit SDK"
+sidebarTitle: "Installation"
+description: "Install the Wizzit JavaScript or Python SDK using your package manager and configure it with your API key for immediate use."
+---
+
+Getting the Wizzit SDK set up in your project takes just a few minutes. Pick the library that matches your stack, install it with your usual package manager, and you'll have a fully configured client ready to make API calls.
+
+## JavaScript / TypeScript
+
+Install `@wizzit/sdk` using your preferred package manager:
+
+<CodeGroup>
+```bash npm
+npm install @wizzit/sdk
+```
+
+```bash yarn
+yarn add @wizzit/sdk
+```
+
+```bash pnpm
+pnpm add @wizzit/sdk
+```
+</CodeGroup>
+
+Once installed, import `WizzitClient` and initialise it with your API key:
+
+```typescript wizzit.ts
+import { WizzitClient } from '@wizzit/sdk';
+
+const wizzit = new WizzitClient({
+  apiKey: process.env.WIZZIT_API_KEY,
+  baseUrl: 'https://api.wizzit.com/v1', // optional, defaults to production
+});
+```
+
+<Note>
+  The `@wizzit/sdk` package ships with full TypeScript type definitions built in — you don't need to install a separate `@types` package.
+</Note>
+
+## Python
+
+Install the `wizzit` package using pip or Poetry:
+
+<CodeGroup>
+```bash pip
+pip install wizzit
+```
+
+```bash poetry
+poetry add wizzit
+```
+</CodeGroup>
+
+Then import `WizzitClient` and create an instance with your API key:
+
+```python wizzit.py
+import os
+from wizzit import WizzitClient
+
+wizzit = WizzitClient(
+    api_key=os.environ["WIZZIT_API_KEY"],
+    base_url="https://api.wizzit.com/v1"  # optional
+)
+```
+
+## Configuration Options
+
+These options are available when initialising `WizzitClient` in both the JavaScript and Python SDKs.
+
+<ParamField path="apiKey" type="string" required>
+  Your Wizzit API key. You can generate one from **Settings → API Keys** in your workspace dashboard.
+</ParamField>
+
+<ParamField path="baseUrl" type="string">
+  The base URL of the Wizzit API. Defaults to `https://api.wizzit.com/v1`. Override this if you're using a self-hosted instance or a staging environment.
+</ParamField>
+
+<ParamField path="timeout" type="number">
+  Maximum time in milliseconds to wait for a response before the request is cancelled. Defaults to `30000` (30 seconds).
+</ParamField>
+
+<ParamField path="retries" type="number">
+  Number of times the SDK will automatically retry a failed request due to a network error or a `5xx` server response. Defaults to `3`.
+</ParamField>
+
+<Tip>
+  Always load your API key from an environment variable or a secrets manager — never hardcode it directly in your source code. This prevents accidental exposure if your code is committed to a public repository.
+</Tip>
+
+<Note>
+  For advanced authentication patterns, including per-request key overrides and key rotation, see the [Authentication guide](sdk/authentication).
+</Note>
