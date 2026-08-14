@@ -1,7 +1,7 @@
 ---
-title: "REST API Endpoints for Documents"
+title: "Documents API Reference: List, Create, Update and Delete"
 sidebarTitle: "Documents API"
-description: "Full reference for Wizzit document endpoints: list, create, retrieve, update, delete, and share documents via the REST API."
+description: "Full reference for the Wizzit Documents API: list, retrieve, create, update, and delete documents in your workspace via REST endpoints."
 ---
 
 Documents are the core resource in Wizzit. Each document belongs to a workspace and can be internal (visible only to your team) or shared with external clients. The Documents API lets you create and manage documents programmatically — whether you're automating publishing workflows, syncing content from external sources, or building a custom document portal for your clients.
@@ -213,7 +213,7 @@ curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
 
 ## PUT /documents/{id}
 
-Fully replace a document's fields. All writable fields are overwritten — any field not included in the request body is reset to its default value. Use [PATCH /documents/{id}](#patch-documentsid) if you only want to update specific fields.
+Fully replace a document's fields. All writable fields are overwritten with the values you provide — any field not included in the request body is reset to its default value.
 
 ### Path Parameters
 
@@ -279,50 +279,6 @@ curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
 
 ---
 
-## PATCH /documents/{id}
-
-Partially update a document. Only the fields you include in the request body are changed — all other fields remain untouched.
-
-### Path Parameters
-
-<ParamField path="id" type="string" required>
-  The unique identifier of the document to update.
-</ParamField>
-
-### Request Body
-
-Include any subset of the writable document fields: `title`, `content`, `type`, `visibility`, or `tags`.
-
-### Example Request
-
-```bash
-curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
-  -X PATCH \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{ "visibility": "public" }'
-```
-
-### Example Response
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": "doc_01hx5m3rw2",
-    "title": "Client Onboarding Checklist",
-    "content": "## Welcome\n\nUse this checklist to complete onboarding.",
-    "type": "page",
-    "visibility": "public",
-    "tags": ["onboarding", "client"],
-    "created_at": "2024-05-20T08:30:00Z",
-    "updated_at": "2024-05-21T11:00:00Z"
-  }
-}
-```
-
----
-
 ## DELETE /documents/{id}
 
 Permanently delete a document from your workspace. This action cannot be undone.
@@ -344,90 +300,3 @@ curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2 \
 ### Response
 
 Returns `204 No Content` with an empty body on success.
-
----
-
-## POST /documents/{id}/share
-
-Share a document with a client by email. Wizzit sends the recipient an invitation email and returns a secure share link you can also distribute directly.
-
-### Path Parameters
-
-<ParamField path="id" type="string" required>
-  The unique identifier of the document to share.
-</ParamField>
-
-### Request Body
-
-<ParamField body="email" type="string" required>
-  The email address of the client you want to share the document with.
-</ParamField>
-
-<ParamField body="role" type="string" required>
-  The access role for the recipient. Currently supports `viewer`.
-</ParamField>
-
-<ParamField body="expires_at" type="string">
-  An ISO 8601 datetime string indicating when the share link should expire. If omitted, the link does not expire.
-</ParamField>
-
-### Example Request
-
-```bash
-curl https://api.wizzit.com/v1/documents/doc_01hx5m3rw2/share \
-  -X POST \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "client@example.com",
-    "role": "viewer",
-    "expires_at": "2024-12-31T23:59:59Z"
-  }'
-```
-
-### Example Response
-
-```json
-{
-  "success": true,
-  "data": {
-    "share_id": "shr_01hx6n8qv3",
-    "document_id": "doc_01hx5m3rw2",
-    "email": "client@example.com",
-    "role": "viewer",
-    "share_url": "https://app.wizzit.com/shared/shr_01hx6n8qv3",
-    "expires_at": "2024-12-31T23:59:59Z",
-    "created_at": "2024-05-21T12:00:00Z"
-  }
-}
-```
-
-### Response Fields
-
-<ResponseField name="share_id" type="string">
-  The unique identifier for this share grant.
-</ResponseField>
-
-<ResponseField name="document_id" type="string">
-  The ID of the document that was shared.
-</ResponseField>
-
-<ResponseField name="email" type="string">
-  The email address the document was shared with.
-</ResponseField>
-
-<ResponseField name="role" type="string">
-  The access role granted to the recipient.
-</ResponseField>
-
-<ResponseField name="share_url" type="string">
-  The direct URL the recipient can use to access the document.
-</ResponseField>
-
-<ResponseField name="expires_at" type="string">
-  The expiry datetime of the share link, or `null` if it does not expire.
-</ResponseField>
-
-<ResponseField name="created_at" type="string">
-  ISO 8601 timestamp of when the share was created.
-</ResponseField>

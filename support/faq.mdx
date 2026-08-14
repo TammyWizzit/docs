@@ -1,5 +1,5 @@
 ---
-title: "Frequently Asked Questions About Wizzit"
+title: "Wizzit FAQ: Accounts, Documents, Integrations & SDK"
 sidebarTitle: "FAQ"
 description: "Find answers to the most common questions about Wizzit accounts, documents, integrations, the SDK, billing, and workspace management."
 ---
@@ -102,6 +102,67 @@ This FAQ covers the questions our users ask most often. Whether you are just get
   - **Python** — install from PyPI as `wizzit`
 
   SDKs for **Ruby** and **Go** are in development and coming soon. If you need support for another language in the meantime, you can use the REST API directly.
+
+  Here is a minimal example to get started with the JavaScript SDK:
+
+  ```bash
+  npm install @wizzit/sdk
+  ```
+
+  ```typescript
+  import { WizzitClient } from "@wizzit/sdk";
+
+  const client = new WizzitClient({ apiKey: process.env.WIZZIT_API_KEY });
+
+  // List all documents in your workspace
+  const documents = await client.documents.list();
+  console.log(documents);
+
+  // Fetch a single document by ID
+  const doc = await client.documents.get("doc_abc123");
+  console.log(doc);
+
+  // Create a new document
+  const newDoc = await client.documents.create({
+    title: "Onboarding Guide",
+    content: "Welcome to our onboarding process...",
+  });
+  console.log(newDoc.id);
+
+  // Connect an integration
+  await client.integrations.connect({
+    type: "google_docs",
+    credentials: { token: process.env.GOOGLE_TOKEN },
+  });
+  ```
+
+  And the equivalent in Python:
+
+  ```bash
+  pip install wizzit
+  ```
+
+  ```python
+  import os
+  from wizzit import WizzitClient
+
+  client = WizzitClient(api_key=os.environ["WIZZIT_API_KEY"])
+
+  # List all documents
+  documents = client.documents.list()
+  print(documents)
+
+  # Fetch a single document
+  doc = client.documents.get("doc_abc123")
+  print(doc)
+
+  # Create a new document
+  new_doc = client.documents.create(
+      title="Onboarding Guide",
+      content="Welcome to our onboarding process...",
+  )
+  print(new_doc["id"])
+  ```
 </Accordion>
 
 <Accordion title="Is the SDK open source?">

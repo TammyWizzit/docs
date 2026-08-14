@@ -1,5 +1,5 @@
 ---
-title: "Wizzit SDK Quick Reference Guide"
+title: "Quick Reference for All Wizzit SDK Methods and Examples"
 sidebarTitle: "Quick Reference"
 description: "A complete reference of all Wizzit SDK methods for documents, integrations, webhooks, and users, with TypeScript and Python examples."
 ---
@@ -198,27 +198,6 @@ Connects a new integration to your workspace. Provide the integration type and a
   </Tab>
 </Tabs>
 
-### `integrations.disconnect(id)`
-
-Disables and removes an integration from your workspace by its ID.
-
-<Tabs>
-  <Tab title="TypeScript">
-    ```typescript
-    await wizzit.integrations.disconnect('int_xyz789');
-
-    console.log('Integration disconnected.');
-    ```
-  </Tab>
-  <Tab title="Python">
-    ```python
-    wizzit.integrations.disconnect("int_xyz789")
-
-    print("Integration disconnected.")
-    ```
-  </Tab>
-</Tabs>
-
 ## Webhooks
 
 ### `webhooks.create(config)`
@@ -248,51 +227,6 @@ Registers a new webhook endpoint to receive event notifications. Specify the URL
     )
 
     print("Webhook registered:", webhook.id)
-    ```
-  </Tab>
-</Tabs>
-
-### `webhooks.list()`
-
-Returns all webhook endpoints registered for your workspace.
-
-<Tabs>
-  <Tab title="TypeScript">
-    ```typescript
-    const webhooks = await wizzit.webhooks.list();
-
-    webhooks.data.forEach(wh => {
-      console.log(wh.id, wh.url, wh.events);
-    });
-    ```
-  </Tab>
-  <Tab title="Python">
-    ```python
-    webhooks = wizzit.webhooks.list()
-
-    for wh in webhooks.data:
-        print(wh.id, wh.url, wh.events)
-    ```
-  </Tab>
-</Tabs>
-
-### `webhooks.delete(id)`
-
-Removes a registered webhook by its ID. Wizzit will stop sending events to that endpoint immediately.
-
-<Tabs>
-  <Tab title="TypeScript">
-    ```typescript
-    await wizzit.webhooks.delete('wh_def456');
-
-    console.log('Webhook removed.');
-    ```
-  </Tab>
-  <Tab title="Python">
-    ```python
-    wizzit.webhooks.delete("wh_def456")
-
-    print("Webhook removed.")
     ```
   </Tab>
 </Tabs>

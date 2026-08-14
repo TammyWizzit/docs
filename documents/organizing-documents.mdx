@@ -1,7 +1,7 @@
 ---
-title: "Organizing Documents with Collections and Tags"
+title: "Organizing Wizzit Documents with Collections and Tags"
 sidebarTitle: "Organizing Documents"
-description: "Use collections, tags, and search to keep your Wizzit document library structured and easy to navigate for your team and clients."
+description: "Use collections, tags, and search to keep your Wizzit document library structured and easy to navigate for both your team and your clients."
 ---
 
 As your document library grows, keeping everything findable becomes just as important as keeping it accurate. Wizzit gives you three complementary tools to stay organised: collections for hierarchical grouping, tags for flexible cross-cutting labels, and a powerful search that works across both. Used together, these features make it easy for your team — and your clients — to find exactly what they need.
@@ -17,29 +17,16 @@ Collections work like folders: they group related documents under a named contai
 3. Enter a name and an optional description.
 4. Add documents to the collection by searching for them in the document picker.
 
-**Creating a collection via the API:**
-
-```bash
-POST https://api.wizzit.com/v1/collections
-```
-
-```json
-{
-  "name": "Client Onboarding",
-  "description": "Documents for new clients"
-}
-```
-
 A document can belong to more than one collection, so you're not forced to choose a single home for content that spans multiple projects.
 
 ## Tags
 
 Tags are freeform labels you attach to documents to make them easier to filter and discover. Unlike collections, tags don't impose a hierarchy — they're a lightweight way to group documents across collections by theme, status, audience, or any other attribute.
 
-You can add tags when you first create a document, or update them at any time using a `PATCH` request:
+You can add tags when you first create a document, or update them at any time using a `PUT` request:
 
 ```bash
-PATCH https://api.wizzit.com/v1/documents/{id}
+PUT https://api.wizzit.com/v1/documents/{id}
 ```
 
 ```json
@@ -48,7 +35,7 @@ PATCH https://api.wizzit.com/v1/documents/{id}
 }
 ```
 
-This replaces the existing tag list on the document with the array you provide. To append tags without losing existing ones, retrieve the current tags first and merge them before sending the `PATCH`.
+This replaces the existing tag list on the document with the array you provide. To append tags without losing existing ones, retrieve the current tags first with `GET /documents/{id}`, merge the tag arrays, then send the full updated document in your `PUT` request.
 
 ## Search
 

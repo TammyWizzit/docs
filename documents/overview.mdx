@@ -1,5 +1,5 @@
 ---
-title: "Documents in Wizzit: Store, Access, and Share"
+title: "Wizzit Documents: Store, Organise, and Share Knowledge"
 sidebarTitle: "Overview"
 description: "Wizzit documents are the central unit of your knowledge store. Learn about document types, structure, visibility settings, and how to manage them."
 ---
@@ -67,5 +67,5 @@ Documents in Wizzit move through a defined lifecycle from first draft to long-te
 </CardGroup>
 
 <Tip>
-  If you need to create or update many documents at once, use the Wizzit SDK rather than making individual API calls. The SDK exposes batch methods that handle rate limiting and error retries automatically, making bulk operations significantly faster and more reliable.
+  If you need to create or update many documents programmatically, use the Wizzit SDK. `WizzitClient.documents.create()` and `WizzitClient.documents.list()` give you a consistent, typed interface over the REST API — no manual header management or response parsing required.
 </Tip>

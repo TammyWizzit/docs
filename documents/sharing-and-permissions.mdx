@@ -1,7 +1,7 @@
 ---
-title: "Sharing Documents and Managing Permissions"
+title: "Sharing Wizzit Documents and Managing Access Permissions"
 sidebarTitle: "Sharing & Permissions"
-description: "Control who can view, edit, and share Wizzit documents using roles, visibility settings, and shareable links for client access."
+description: "Control who can view, edit, and share your Wizzit documents using workspace roles, visibility settings, and shareable links for external client access."
 ---
 
 Wizzit's granular permissions model lets you keep sensitive internal documents locked down while still giving clients frictionless access to exactly what they need. You control access at two levels: workspace roles determine what your team members can do, and document-level visibility settings determine who outside your organisation can reach a given document. Together, these tools ensure the right people always see the right content.
@@ -41,37 +41,44 @@ You can configure link expiry settings — including a default expiry duration f
 
 ## API-Driven Permissions
 
-For more precise access control — such as granting a specific client read-only access to a document with a hard expiry date — use the sharing endpoint. This is especially useful when automating client onboarding or building integrations.
+For automated workflows — such as publishing a document when a client onboarding process completes — you can update a document's visibility programmatically using the REST API. Send a `PUT` request to update the document's `visibility` field to control who can access it.
 
 ```bash
-POST https://api.wizzit.com/v1/documents/{id}/share
+PUT https://api.wizzit.com/v1/documents/{id}
+```
+
+**Headers**
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json
 ```
 
 **Request body**
 
 ```json
 {
-  "email": "client@example.com",
-  "role": "viewer",
-  "expires_at": "2025-12-31T23:59:59Z"
+  "title": "Client Onboarding Guide",
+  "content": "## Welcome\n\nThis guide walks you through your first steps...",
+  "type": "client-facing",
+  "visibility": "public"
 }
 ```
 
-**Success response** — `201 Created`
+**Success response** — `200 OK`
 
 ```json
 {
-  "share_id": "shr_03k1mf7y2pxn8wca4dqe9rzb5v",
-  "document_id": "doc_01j8tz4x9kqm2vbn3cpw7yhf6e",
-  "email": "client@example.com",
-  "role": "viewer",
-  "expires_at": "2025-12-31T23:59:59Z",
-  "url": "https://share.wizzit.com/docs/doc_01j8tz4x9kqm2vbn3cpw7yhf6e?token=shr_03k1mf7y2pxn8wca4dqe9rzb5v",
-  "created_at": "2024-10-14T11:05:22Z"
+  "id": "doc_01j8tz4x9kqm2vbn3cpw7yhf6e",
+  "title": "Client Onboarding Guide",
+  "type": "client-facing",
+  "visibility": "public",
+  "updated_at": "2024-10-14T11:05:22Z",
+  "url": "https://share.wizzit.com/docs/doc_01j8tz4x9kqm2vbn3cpw7yhf6e"
 }
 ```
 
-The `url` in the response is a unique, token-scoped link tied to the recipient's email and the expiry you set. You can list, update, and revoke individual shares at any time via the API.
+The `url` in the response is the shareable link for the document. It is only accessible to external users when `visibility` is set to `public`. You can switch a document back to `internal` or `private` at any time by sending another `PUT` request with the updated visibility value.
 
 <Note>
   To manage workspace team members — including inviting new members, changing roles, or removing access — see the [Users API reference](/api/users).

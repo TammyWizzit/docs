@@ -70,33 +70,15 @@ A successful response returns the new integration object:
 
 ## Managing Integrations
 
-Once an integration is active, you can list, disable, or delete it at any time using the REST API.
-
-**List all integrations:**
+Once an integration is active, you can inspect your workspace's current integrations at any time by sending a `GET` request to the integrations endpoint:
 
 ```bash
 GET https://api.wizzit.com/v1/integrations
 ```
 
-**Disable an integration:**
+This returns an array of all integrations in your workspace, including their IDs, names, statuses, and configured sync events — useful for auditing what is connected and verifying that integrations are running as expected.
 
-```bash
-PATCH https://api.wizzit.com/v1/integrations/{id}
-```
-
-```json
-{
-  "status": "disabled"
-}
-```
-
-**Delete an integration:**
-
-```bash
-DELETE https://api.wizzit.com/v1/integrations/{id}
-```
-
-A `204 No Content` response confirms the integration has been removed.
+To disable or delete an existing integration, navigate to **Settings → Integrations** in your Wizzit dashboard, locate the integration in the list, and use the **Disable** or **Remove** actions from its options menu.
 
 <Warning>
   If a third-party credential used by an integration is ever compromised, revoke or rotate that credential in the external system immediately, then update or delete the affected Wizzit integration. Leaving an integration active with a compromised token could expose sensitive documents to unauthorised parties.

@@ -1,7 +1,7 @@
 ---
-title: "Wizzit REST API Reference Overview"
+title: "Wizzit REST API Overview: Requests, Responses & Limits"
 sidebarTitle: "Overview"
-description: "The Wizzit REST API lets you manage documents, integrations, and users programmatically. All requests use HTTPS and return JSON."
+description: "The Wizzit REST API gives you programmatic access to documents, integrations, users, and webhooks over HTTPS. All responses return consistent JSON."
 ---
 
 The Wizzit REST API gives you programmatic access to everything on the platform — documents, integrations, users, and webhooks. Every request is made over HTTPS to a versioned base URL, and every response is a JSON object with a consistent structure. Whether you're automating document workflows, syncing external tools, or managing your workspace, the API provides a reliable foundation to build on.
@@ -101,9 +101,15 @@ Breaking changes — such as removing fields, changing field types, or altering 
     Understand error codes, HTTP status codes, and how to handle failures.
   </Card>
   <Card title="Documents API" icon="file-lines" href="/api/documents">
-    List, create, update, delete, and share documents via the REST API.
+    List, create, update, and delete documents via the REST API.
   </Card>
   <Card title="Integrations API" icon="plug" href="/api/integrations">
     Connect external systems to Wizzit using the integrations endpoints.
+  </Card>
+  <Card title="Users API" icon="users" href="/api/users">
+    List workspace members, invite new users, update roles, and remove access.
+  </Card>
+  <Card title="Webhooks API" icon="bolt" href="/api/webhooks">
+    Register webhook endpoints and receive real-time event notifications.
   </Card>
 </CardGroup>
